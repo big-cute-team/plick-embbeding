@@ -5,7 +5,7 @@
 
 ## Current Phase
 
-02 — PoC 이관 + 재현 (`docs/phases/02-poc-migration.md`)
+02 — PoC 이관 + 기준선 확립 (`docs/phases/02-poc-migration.md`)
 
 ## Current Task
 
@@ -18,7 +18,7 @@ IN PROGRESS
 ## Completed
 
 - [x] Phase 01 — 프로젝트 뼈대
-- [ ] Phase 02 — PoC 이관 + 재현
+- [ ] Phase 02 — PoC 이관 + 기준선 확립
 - [ ] Phase 03 — 정답 라벨 + 정량 평가 러너
 - [ ] Phase 04 — LLM Wiki (Obsidian) 구축
 - [ ] Phase 05 — 모델별 task_type 실험 (2인 병렬: Gemini / OpenAI)
@@ -28,6 +28,9 @@ IN PROGRESS
 
 ## Working Notes
 
+- 2026-07-14 기존 데이터셋(기사 56건·tmp_embeddings) 소실 확인 → Phase 02를
+  "재현"에서 "새 데이터셋 기준선 확립"으로 재구성 (phase 파일·DECISIONS 갱신).
+  T01=새 스냅샷 고정, T05=잠정 구성 기준선 실험+눈 검증. T02~T04 코드는 그대로 유효.
 - 2026-07-14 Phase 02 T02~T04 구현 완료 (트랙 A) — providers(base/cache/
   gemini: task_type·차원 옵션, L2 정규화, .npy 파일 캐시, 지수 백오프),
   pipeline(articles 로더·병합형 군집화·윈도우 분리), report(results/
@@ -59,8 +62,8 @@ IN PROGRESS
 
 ## Blockers
 
-- P02-T01: 기존 실험 데이터(published 56건 + tmp_embeddings) 접근 정보 필요
-  (Supabase 접속 정보 또는 plick-ai poc-embedding 코드·데이터 위치) — 개발자 제공 대기
+- P02-T01: 새 데이터셋 소스·추출 기간 결정 필요 (기존 데이터셋 소실 —
+  Supabase article_summaries에서 추출 or 파일 제공, 개발자 선택 대기)
 
 ## Developer Test
 
