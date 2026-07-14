@@ -28,12 +28,12 @@
 
 ## 실험 기록 (LLM Wiki)
 
-- **1차 기록은 `wiki/`(Obsidian vault)** — 실험 1회 = `wiki/experiments/`에
+- **1차 기록은 `wiki/`(Obsidian 보관함)** — 실험 1회 = `wiki/experiments/`에
   노트 1개 (`YYYY-MM-DD_HHMM_요약.md`), report 모듈이 자동 생성한다.
-  frontmatter(model, task_type, dim, threshold, ari 등)를 채워 조회 가능하게.
-- 실험에서 얻은 지식(모델 특성, 임계 감각, 엣지 케이스)은
+  노트 머리말 항목(model, task_type, dim, threshold, ari 등)를 채워 조회 가능하게.
+- 실험에서 얻은 지식(모델 특성, 임계 감각, 예외 케이스)은
   `wiki/models/`·`wiki/concepts/` 노트에 누적하고 `[[링크]]`로 연결한다.
-- 노트를 수동으로 고쳐도 되지만 frontmatter의 조건·점수는 실행 결과와
+- 노트를 수동으로 고쳐도 되지만 머리말의 조건·점수는 실행 결과와
   다르게 바꾸지 않는다 (재현성).
 - 팀 차원 공유가 필요한 실험(구성 선정 등)은 Confluence "실험 기록
   (임베딩·중복처리)" 폴더에 요약 페이지로 올린다 — 제목·템플릿은 실험 기록
