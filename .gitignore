@@ -1,0 +1,24 @@
+.DS_Store
+.env
+.env.*
+*.log
+.claude/settings.local.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+dist/
+.pytest_cache/
+.ruff_cache/
+
+# 실험 산출물 (기록은 Confluence에)
+results/
+
+# 임베딩 캐시·대용량 데이터 (라벨 등 작은 파일은 data/에 커밋)
+.cache/
+data/raw/
+
+# Obsidian 개인 설정 (노트는 커밋, 워크스페이스 상태는 제외)
+wiki/.obsidian/
