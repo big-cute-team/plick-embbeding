@@ -9,17 +9,17 @@
 
 ## Current Task
 
-P03-T01
+none (검토 대기)
 
 ## Status
 
-NOT STARTED
+AWAITING REVIEW
 
 ## Completed
 
 - [x] Phase 01 — 프로젝트 뼈대
 - [x] Phase 02 — PoC 이관 + 기준선 확립
-- [ ] Phase 03 — 정답 라벨 + 정량 평가 러너
+- [x] Phase 03 — 정답 라벨 + 정량 평가 러너
 - [ ] Phase 04 — LLM Wiki (Obsidian) 구축
 - [ ] Phase 05 — 모델별 task_type 실험 (2인 병렬: Gemini / OpenAI)
 - [ ] Phase 06 — 결과 종합 · 최적 구성 선정
@@ -28,6 +28,21 @@ NOT STARTED
 
 ## Working Notes
 
+- 2026-07-14 Phase 03 완료 (검토 대기). 만든 것: eval/labels.py(정답 로더
+  {기사id:이슈id}+미라벨 경고), data/labels/articles90.json(90건→이슈 55개
+  정답 초안, 다건 15·단건 40), eval/scoring.py(ARI·쌍 정밀도/재현율/F1·
+  오병합/과분할, 결정론), report에 정량 평가 섹션+scores.json 연결,
+  run_experiment.py --labels. tests/test_eval.py 7개 추가(총 20개, API 없이
+  통과)·ruff 통과. 기준선 점수(SEMANTIC@0.85, 90건, 768d, 24h): ARI 0.8569,
+  쌍 정밀도 0.9412·재현율 0.7921·F1 0.8602(TP80/FP5/FN21), 오병합 2건(홀란
+  경험·교체·응원 3중, 이라올라 계약+계획)·과분할 7건, results/20260714_210532/.
+  ⚠️ 정답 초안 검수 필요(개발자): (1) 라벨 판단이 애매한 건 —
+  7358(틸레망스에 포함시켰으나 임베딩은 분리), 7092(manutd_extra_midfielder
+  단독 처리), 지미제이 데리 첼시 계약 vs 스포르팅 임대 분리, 홀란 미세뉴스
+  분할 기준. (2) 라벨은 24h 윈도우 무관 "실제 사건" 기준이라, 여러 날 사가는
+  과분할로 잡히게 설계함(DECISIONS 참조) — 이 관점이 맞는지 확인.
+- 2026-07-14 Phase 03 착수 — 계획: eval/labels.py, articles90.json,
+  eval/scoring.py, report 연결, T05 기준 점수.
 - 2026-07-14 P02-T05 완료 → Phase 02 전체 완료 (검토 대기). `.env`에
   GEMINI_API_KEY 주입 후 기준선 실험 실행: gemini-embedding-001 ·
   SEMANTIC_SIMILARITY · 768d · 임계 0.85 · 24h → 결과 90건 → 60이슈 /
@@ -84,4 +99,6 @@ none
 
 ## Developer Test
 
-none
+- [ ] `uv run python scripts/run_experiment.py --model gemini --task-type SEMANTIC_SIMILARITY --dim 768 --threshold 0.85 --window 24h --labels data/labels/articles90.json` 실행 후 report에서 ARI·F1 점수 확인
+- [ ] 오병합 사례 목록에 Phase 02 눈 검증에서 발견한 사례(홀란·이라올라)가 있는지 확인
+- [ ] 라벨 초안 검수: `data/labels/articles90.json`을 열어 이슈 배정이 맞는지 확인 (특히 7358·7092·데리·홀란 미세뉴스 — Working Notes 참조)

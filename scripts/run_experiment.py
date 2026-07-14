@@ -10,6 +10,8 @@ import sys
 from datetime import timedelta
 from pathlib import Path
 
+from plick_embedding.eval.labels import load_labels
+from plick_embedding.eval.scoring import score as score_clusters
 from plick_embedding.pipeline.articles import load_articles
 from plick_embedding.pipeline.clustering import cluster_embeddings
 from plick_embedding.pipeline.window import split_clusters_by_window
@@ -65,6 +67,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="기사 스냅샷 JSON (기본: data/articles.json)",
     )
     parser.add_argument(
+        "--labels",
+        type=Path,
+        default=None,
+        help="정답 라벨 JSON (기사 id→이슈 id). 있으면 리포트에 정량 점수 포함",
+    )
+    parser.add_argument(
         "--show-config", action="store_true", help="현재 설정(API 키 존재 여부 등)을 출력하고 종료"
     )
     return parser
@@ -102,6 +110,23 @@ def main() -> None:
         labels, [a.published_at for a in articles], window=args.window
     )
 
+    score = None
+    if args.labels is not None:
+        if not args.labels.exists():
+            sys.exit(f"라벨 파일이 없습니다: {args.labels}")
+        label_set = load_labels(args.labels)
+        missing = label_set.missing([a.id for a in articles])
+        if missing:
+            print(
+                f"경고: 정답 라벨이 없는 기사 {len(missing)}건은 채점에서 제외합니다 "
+                f"(예: {', '.join(missing[:5])}{' …' if len(missing) > 5 else ''})"
+            )
+        score = score_clusters(articles, labels, label_set)
+        print(
+            f"정량 평가: ARI {score.ari:.4f} · F1 {score.pairwise.f1:.4f} "
+            f"(오병합 {len(score.overmerges)}건 · 과분할 {len(score.oversplits)}건)"
+        )
+
     config = ExperimentConfig(
         model=embedding_config.model,
         task_type=embedding_config.task_type,
@@ -111,7 +136,7 @@ def main() -> None:
         input_path=str(args.input),
         n_articles=len(articles),
     )
-    run_dir = write_report(config, articles, labels)
+    run_dir = write_report(config, articles, labels, score=score)
     print(f"결과 저장: {run_dir}")
     print((run_dir / "report.md").read_text(encoding="utf-8").split("## 중복 묶음 상세")[0])
 

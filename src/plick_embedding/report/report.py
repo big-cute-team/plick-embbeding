@@ -11,6 +11,7 @@ from pathlib import Path
 
 import numpy as np
 
+from plick_embedding.eval.scoring import ScoreResult
 from plick_embedding.pipeline.articles import Article
 from plick_embedding.settings import PROJECT_ROOT
 
@@ -44,8 +45,12 @@ def write_report(
     labels: np.ndarray,
     results_dir: Path = DEFAULT_RESULTS_DIR,
     run_at: datetime | None = None,
+    score: ScoreResult | None = None,
 ) -> Path:
-    """results/<타임스탬프>/에 config·result·report를 저장하고 폴더 경로를 반환한다."""
+    """results/<타임스탬프>/에 config·result·report를 저장하고 폴더 경로를 반환한다.
+
+    score가 주어지면 정량 평가 섹션과 scores.json을 함께 남긴다.
+    """
     run_at = run_at or datetime.now()
     run_dir = results_dir / run_at.strftime("%Y%m%d_%H%M%S")
     run_dir.mkdir(parents=True, exist_ok=False)
@@ -71,12 +76,21 @@ def write_report(
     (run_dir / "result.json").write_text(
         json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8"
     )
-    (run_dir / "report.md").write_text(render_markdown(config, clusters, run_at), encoding="utf-8")
+    if score is not None:
+        (run_dir / "scores.json").write_text(
+            json.dumps(asdict(score), ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+    (run_dir / "report.md").write_text(
+        render_markdown(config, clusters, run_at, score), encoding="utf-8"
+    )
     return run_dir
 
 
 def render_markdown(
-    config: ExperimentConfig, clusters: list[list[Article]], run_at: datetime
+    config: ExperimentConfig,
+    clusters: list[list[Article]],
+    run_at: datetime,
+    score: ScoreResult | None = None,
 ) -> str:
     """Confluence 실험 기록 양식에 붙여넣을 수 있는 텍스트를 만든다."""
     dup_groups = [c for c in clusters if len(c) >= 2]
@@ -100,9 +114,10 @@ def render_markdown(
         f"- 중복 묶음(2건 이상) 수: **{len(dup_groups)}**",
         f"- 묶음 크기 분포: {_size_distribution(clusters)}",
         "",
-        "## 중복 묶음 상세",
-        "",
     ]
+    if score is not None:
+        lines += _render_score(score)
+    lines += ["## 중복 묶음 상세", ""]
     for i, cluster in enumerate(dup_groups, start=1):
         lines.append(f"### 묶음 {i} ({len(cluster)}건)")
         lines.append("")
@@ -111,6 +126,41 @@ def render_markdown(
             lines.append(f"- [{stamp}] ({article.id}) {article.title}")
         lines.append("")
     return "\n".join(lines)
+
+
+def _render_score(score: ScoreResult) -> list[str]:
+    """정량 평가 섹션 (정답 대비 ARI·쌍 단위·오병합·과분할)."""
+    p = score.pairwise
+    lines = [
+        "## 정량 평가 (정답 대비)",
+        "",
+        f"- 채점 대상: 정답 있는 기사 **{score.n_labeled}건** "
+        f"(정답 없음 {score.n_unlabeled}건 제외), 정답 이슈 {score.n_truth_issues}개 "
+        f"vs 예측 묶음 {score.n_pred_clusters}개",
+        f"- **ARI**: {score.ari:.4f}",
+        f"- **쌍 단위**: 정밀도 {p.precision:.4f} · 재현율 {p.recall:.4f} · "
+        f"F1 {p.f1:.4f} (TP {p.tp} · FP {p.fp} · FN {p.fn})",
+        "",
+        f"### 오병합 (서로 다른 이슈가 한 묶음, {len(score.overmerges)}건)",
+        "",
+    ]
+    if not score.overmerges:
+        lines += ["- 없음", ""]
+    for case in score.overmerges:
+        n_issues = len(case.members_by_issue)
+        lines.append(f"- 예측 묶음 #{case.pred_cluster} — 정답 이슈 {n_issues}개 혼합")
+        for issue, members in case.members_by_issue.items():
+            lines.append(f"  - `{issue}`: {', '.join(members)}")
+    lines.append("")
+    lines += [f"### 과분할 (한 이슈가 여러 묶음, {len(score.oversplits)}건)", ""]
+    if not score.oversplits:
+        lines += ["- 없음", ""]
+    for case in score.oversplits:
+        lines.append(f"- `{case.issue}` — 예측 묶음 {len(case.members_by_cluster)}개로 분할")
+        for cluster, members in case.members_by_cluster.items():
+            lines.append(f"  - 묶음 #{cluster}: {', '.join(members)}")
+    lines.append("")
+    return lines
 
 
 def _size_distribution(clusters: list[list[Article]]) -> str:
