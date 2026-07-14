@@ -9,7 +9,7 @@
 
 ## Current Task
 
-P02-T02
+P02-T05
 
 ## Status
 
@@ -28,6 +28,11 @@ IN PROGRESS
 
 ## Working Notes
 
+- 2026-07-14 P02-T01 완료 — `.env.local`의 Supabase 접근 정보로
+  article_summaries에서 PUBLISHED 기사 90건(published_at 2026-07-09~13 UTC)을
+  추출해 `data/articles.json` 고정 (`scripts/fetch_articles.py`, 기존 파일
+  덮어쓰기 거부). 파이프라인 로더로 로드 검증, 테스트 13개·ruff 통과.
+  남은 것: T05 기준선 실험 — GEMINI_API_KEY가 `.env`에 없어 블록 (Blockers 참조).
 - 2026-07-14 기존 데이터셋(기사 56건·tmp_embeddings) 소실 확인 → Phase 02를
   "재현"에서 "새 데이터셋 기준선 확립"으로 재구성 (phase 파일·DECISIONS 갱신).
   T01=새 스냅샷 고정, T05=잠정 구성 기준선 실험+눈 검증. T02~T04 코드는 그대로 유효.
@@ -62,8 +67,8 @@ IN PROGRESS
 
 ## Blockers
 
-- P02-T01: 새 데이터셋 소스·추출 기간 결정 필요 (기존 데이터셋 소실 —
-  Supabase article_summaries에서 추출 or 파일 제공, 개발자 선택 대기)
+- P02-T05: `GEMINI_API_KEY`가 없어 기준선 실험 실행 불가 — 프로젝트 루트
+  `.env`에 키를 넣어주세요 (`.env.example` 참고). 키 제공 후 "진행" 지시.
 
 ## Developer Test
 
