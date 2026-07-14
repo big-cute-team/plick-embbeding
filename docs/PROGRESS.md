@@ -9,11 +9,11 @@
 
 ## Current Task
 
-P02-T01
+P02-T02
 
 ## Status
 
-NOT STARTED
+IN PROGRESS
 
 ## Completed
 
@@ -28,6 +28,14 @@ NOT STARTED
 
 ## Working Notes
 
+- 2026-07-14 Phase 02 T02~T04 구현 완료 (트랙 A) — providers(base/cache/
+  gemini: task_type·차원 옵션, L2 정규화, .npy 파일 캐시, 지수 백오프),
+  pipeline(articles 로더·병합형 군집화·윈도우 분리), report(results/
+  <타임스탬프>/ config+result+report.md). 테스트 13개(API 없이 통과).
+  윈도우 적용 방식은 DECISIONS.md 참조 (T05에서 검증 필요).
+- 남은 것: T01(데이터)·T05(재현) — 기사 56건+tmp_embeddings 접근 정보 필요.
+  로컬 plick-ai/prototype 리포에는 poc-embedding 코드·데이터 없음 확인.
+  입력 형식은 data/articles.json: [{id, title, summary_short, published_at}].
 - 2026-07-14 Phase 01 완료 (트랙 A) — pyproject.toml(uv, Python 3.12),
   src/plick_embedding/{providers,pipeline,eval,report}, settings 모듈(.env 로드,
   키 값 비노출 summary), scripts/run_experiment.py 뼈대(--help/--show-config),
@@ -51,7 +59,8 @@ NOT STARTED
 
 ## Blockers
 
-none
+- P02-T01: 기존 실험 데이터(published 56건 + tmp_embeddings) 접근 정보 필요
+  (Supabase 접속 정보 또는 plick-ai poc-embedding 코드·데이터 위치) — 개발자 제공 대기
 
 ## Developer Test
 

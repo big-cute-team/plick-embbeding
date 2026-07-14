@@ -1,8 +1,31 @@
-"""실험 실행 CLI 뼈대 — 실제 실험 로직은 Phase 02+에서 채운다."""
+"""실험 실행 CLI — 임베딩 → 24h 롤링 윈도우 → 병합형 군집화 → 리포트.
+
+예: uv run python scripts/run_experiment.py \\
+        --model gemini --task-type SEMANTIC_SIMILARITY \\
+        --dim 768 --threshold 0.85 --window 24h
+"""
 
 import argparse
+import sys
+from datetime import timedelta
+from pathlib import Path
 
-from plick_embedding.settings import load_settings
+from plick_embedding.pipeline.articles import load_articles
+from plick_embedding.pipeline.clustering import cluster_embeddings
+from plick_embedding.pipeline.window import split_clusters_by_window
+from plick_embedding.providers.base import EmbeddingConfig
+from plick_embedding.providers.gemini import GeminiEmbeddingProvider
+from plick_embedding.report.report import ExperimentConfig, write_report
+from plick_embedding.settings import PROJECT_ROOT, load_settings
+
+MODEL_NAMES = {"gemini": "gemini-embedding-001"}
+
+
+def parse_window(value: str) -> timedelta:
+    """ "24h" / "36h" 형식을 timedelta로 바꾼다."""
+    if not value.endswith("h"):
+        raise argparse.ArgumentTypeError(f"윈도우는 '24h' 형식이어야 합니다: {value!r}")
+    return timedelta(hours=float(value[:-1]))
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -11,25 +34,86 @@ def build_parser() -> argparse.ArgumentParser:
         description="PLick 임베딩 벤치마크 실험 실행 (Gemini vs OpenAI)",
     )
     parser.add_argument(
-        "--show-config",
-        action="store_true",
-        help="현재 설정(API 키 존재 여부 등)을 출력하고 종료",
+        "--model",
+        choices=sorted(MODEL_NAMES),
+        default="gemini",
+        help="임베딩 공급자 (기본: gemini)",
+    )
+    parser.add_argument(
+        "--task-type",
+        default="SEMANTIC_SIMILARITY",
+        help="임베딩 용도 파라미터 (기본: SEMANTIC_SIMILARITY)",
+    )
+    parser.add_argument("--dim", type=int, default=768, help="벡터 차원 (기본: 768)")
+    parser.add_argument(
+        "--threshold",
+        type=float,
+        default=0.85,
+        help="같은 이슈로 볼 코사인 유사도 기준 (기본: 0.85)",
+    )
+    parser.add_argument(
+        "--window",
+        type=parse_window,
+        default=timedelta(hours=24),
+        metavar="24h",
+        help="롤링 윈도우 (기본: 24h)",
+    )
+    parser.add_argument(
+        "--input",
+        type=Path,
+        default=PROJECT_ROOT / "data" / "articles.json",
+        help="기사 스냅샷 JSON (기본: data/articles.json)",
+    )
+    parser.add_argument(
+        "--show-config", action="store_true", help="현재 설정(API 키 존재 여부 등)을 출력하고 종료"
     )
     return parser
 
 
 def main() -> None:
-    parser = build_parser()
-    args = parser.parse_args()
-
+    args = build_parser().parse_args()
     settings = load_settings()
-    print("현재 설정:")
-    print(settings.summary())
 
     if args.show_config:
+        print("현재 설정:")
+        print(settings.summary())
         return
 
-    print("\n실험 로직은 아직 없습니다 (Phase 02+에서 구현). --help로 사용법을 확인하세요.")
+    if not args.input.exists():
+        sys.exit(
+            f"입력 파일이 없습니다: {args.input}\n"
+            "P02-T01(실험 데이터 가져오기)로 data/에 스냅샷을 준비하세요."
+        )
+    if not settings.has_gemini:
+        sys.exit("GEMINI_API_KEY가 없습니다. .env를 확인하세요 (.env.example 참고).")
+
+    articles = load_articles(args.input)
+    print(f"기사 {len(articles)}건 로드: {args.input}")
+
+    embedding_config = EmbeddingConfig(
+        model=MODEL_NAMES[args.model], task_type=args.task_type, dim=args.dim
+    )
+    provider = GeminiEmbeddingProvider(embedding_config, api_key=settings.gemini_api_key)
+    embeddings = provider.embed([a.embed_text for a in articles])
+    print(f"임베딩 완료: {embeddings.shape}")
+
+    labels = cluster_embeddings(embeddings, threshold=args.threshold)
+    labels = split_clusters_by_window(
+        labels, [a.published_at for a in articles], window=args.window
+    )
+
+    config = ExperimentConfig(
+        model=embedding_config.model,
+        task_type=embedding_config.task_type,
+        dim=embedding_config.dim,
+        threshold=args.threshold,
+        window_hours=args.window.total_seconds() / 3600,
+        input_path=str(args.input),
+        n_articles=len(articles),
+    )
+    run_dir = write_report(config, articles, labels)
+    print(f"결과 저장: {run_dir}")
+    print((run_dir / "report.md").read_text(encoding="utf-8").split("## 중복 묶음 상세")[0])
 
 
 if __name__ == "__main__":
