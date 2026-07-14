@@ -9,15 +9,15 @@
 
 ## Current Task
 
-P01-T01
+none (검토 대기)
 
 ## Status
 
-NOT STARTED
+AWAITING REVIEW
 
 ## Completed
 
-- [ ] Phase 01 — 프로젝트 뼈대
+- [x] Phase 01 — 프로젝트 뼈대
 - [ ] Phase 02 — PoC 이관 + 재현
 - [ ] Phase 03 — 정답 라벨 + 정량 평가 러너
 - [ ] Phase 04 — LLM Wiki (Obsidian) 구축
@@ -28,6 +28,13 @@ NOT STARTED
 
 ## Working Notes
 
+- 2026-07-14 Phase 01 완료 (트랙 A) — pyproject.toml(uv, Python 3.12),
+  src/plick_embedding/{providers,pipeline,eval,report}, settings 모듈(.env 로드,
+  키 값 비노출 summary), scripts/run_experiment.py 뼈대(--help/--show-config),
+  테스트 3개·ruff 설정. `.gitignore`에 `!.env.example` 예외 추가
+  (`.env.*` 규칙이 견본 파일까지 무시하던 문제). 완료 조건 4개 전부 통과.
+  다음 세션 참고: Phase 02는 기존 실험 데이터(published 56건·tmp_embeddings)
+  접근 정보가 필요 — 개발자 제공 대기.
 - 2026-07-14 init-project로 초기화됨 (Confluence 설계·실험 문서 분석 기반).
   Phase 01부터 시작.
 - 2026-07-14 문서 전체 용어 정리 — dedup→중복 묶기, Agglomerative→병합형
@@ -48,4 +55,5 @@ none
 
 ## Developer Test
 
-none
+- [ ] `uv sync && uv run pytest && uv run ruff check .` 한 줄로 전부 통과 확인
+- [ ] `uv run python scripts/run_experiment.py --help` 출력 확인

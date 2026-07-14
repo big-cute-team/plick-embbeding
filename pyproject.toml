@@ -1,0 +1,35 @@
+[project]
+name = "plick-embedding"
+version = "0.1.0"
+description = "PLick 같은 이슈 묶기(원문 N:요약 1) — 임베딩 모델 벤치마크·실험"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=2.0",
+    "scikit-learn>=1.5",
+    "google-genai>=1.0",
+    "openai>=1.60",
+    "python-dotenv>=1.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.9",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/plick_embedding"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
