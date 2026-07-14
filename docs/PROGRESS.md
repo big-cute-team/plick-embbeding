@@ -9,16 +9,16 @@
 
 ## Current Task
 
-P02-T05
+none (검토 대기)
 
 ## Status
 
-IN PROGRESS
+AWAITING REVIEW
 
 ## Completed
 
 - [x] Phase 01 — 프로젝트 뼈대
-- [ ] Phase 02 — PoC 이관 + 기준선 확립
+- [x] Phase 02 — PoC 이관 + 기준선 확립
 - [ ] Phase 03 — 정답 라벨 + 정량 평가 러너
 - [ ] Phase 04 — LLM Wiki (Obsidian) 구축
 - [ ] Phase 05 — 모델별 task_type 실험 (2인 병렬: Gemini / OpenAI)
@@ -28,6 +28,17 @@ IN PROGRESS
 
 ## Working Notes
 
+- 2026-07-14 P02-T05 완료 → Phase 02 전체 완료 (검토 대기). `.env`에
+  GEMINI_API_KEY 주입 후 기준선 실험 실행: gemini-embedding-001 ·
+  SEMANTIC_SIMILARITY · 768d · 임계 0.85 · 24h → 결과 90건 → 60이슈 /
+  중복묶음 12개 (분포 1×48,2×6,3×3,5×1,6×1,10×1). 결과·눈 검증 코멘트는
+  `results/20260714_204902/`. 캐시 재실행 0.8초·API 없이 동일 수치 재현,
+  테스트 13개·ruff 통과. 눈 검증 요지: 단일 이적 사건(틸레망스 10건 등)은
+  임계 0.85로 정확·표기 변형까지 흡수. 놓친 것 다수는 모델이 아니라
+  24h 윈도우가 여러 날 사가(에데르송·잉글랜드 훈련)를 자른 것 + 선수
+  미세뉴스(홀란)의 "같은 이슈" 경계 모호 → Phase 03 라벨·05 벤치마크에서
+  정밀 판정. 참고: 개발자가 키를 처음 `.env.local`에 넣었으나 러너는 `.env`를
+  읽음 → 개발자가 `.env`로 전체 이관해 해결.
 - 2026-07-14 P02-T01 완료 — `.env.local`의 Supabase 접근 정보로
   article_summaries에서 PUBLISHED 기사 90건(published_at 2026-07-09~13 UTC)을
   추출해 `data/articles.json` 고정 (`scripts/fetch_articles.py`, 기존 파일
@@ -58,8 +69,10 @@ IN PROGRESS
 - 2026-07-14 Phase 01~04 병렬 트랙 확정 — 트랙 A(개발: 01→02→03 러너) /
   트랙 B(지식·라벨: 04 보관함·노트 → 03 라벨). 티켓 6장 분리안은
   `docs/phases/README.md`의 "병렬 진행 가이드" 참조.
-- 2026-07-14 Confluence 마스터 문서(9175112) 반영용 초안 작성 —
-  `docs/CONFLUENCE_UPDATE.md` (연결 복구 후 게시).
+- 2026-07-14 Confluence 게시 완료 — 마스터 문서(9175112 v24): §5.6 같은
+  이슈 판정 3겹 규칙·§6.4 임베딩 역할 경계 신설, 기능2에 실험 리포 현황
+  반영. 중복 처리 파이프라인(15171586 v4): 결정 트리 개정(낮은 티어 헤지
+  편입)·재임베딩 규칙 확정. 초안 원본은 `docs/CONFLUENCE_UPDATE.md`.
 - 2026-07-14 phase 01~08 작업(태스크) 설명을 쉬운 문장으로 전면 재작성
   (가독성 — 작업 ID·체크박스·완료 조건은 그대로).
 - Phase 02 착수 전 필요: 기존 실험 데이터(published 56건·tmp_embeddings)
@@ -67,9 +80,9 @@ IN PROGRESS
 
 ## Blockers
 
-- P02-T05: `GEMINI_API_KEY`가 없어 기준선 실험 실행 불가 — 프로젝트 루트
-  `.env`에 키를 넣어주세요 (`.env.example` 참고). 키 제공 후 "진행" 지시.
+none
 
 ## Developer Test
 
-none
+- [ ] `uv run python scripts/run_experiment.py --model gemini --task-type SEMANTIC_SIMILARITY --dim 768 --threshold 0.85 --window 24h` 실행 후 `results/` 최신 폴더의 report 확인
+- [ ] report의 묶음 결과를 눈으로 확인 (같은 이슈끼리 묶였는지)
