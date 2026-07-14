@@ -5,15 +5,15 @@
 
 ## Current Phase
 
-02 — PoC 이관 + 기준선 확립 (`docs/phases/02-poc-migration.md`)
+03 — 정답 라벨 + 정량 평가 러너 (`docs/phases/03-eval-harness.md`)
 
 ## Current Task
 
-none (검토 대기)
+P03-T01
 
 ## Status
 
-AWAITING REVIEW
+NOT STARTED
 
 ## Completed
 
@@ -84,5 +84,4 @@ none
 
 ## Developer Test
 
-- [ ] `uv run python scripts/run_experiment.py --model gemini --task-type SEMANTIC_SIMILARITY --dim 768 --threshold 0.85 --window 24h` 실행 후 `results/` 최신 폴더의 report 확인
-- [ ] report의 묶음 결과를 눈으로 확인 (같은 이슈끼리 묶였는지)
+none
