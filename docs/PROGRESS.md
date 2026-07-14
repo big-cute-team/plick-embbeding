@@ -5,15 +5,15 @@
 
 ## Current Phase
 
-01 — 프로젝트 뼈대 (`docs/phases/01-project-skeleton.md`)
+02 — PoC 이관 + 재현 (`docs/phases/02-poc-migration.md`)
 
 ## Current Task
 
-none (검토 대기)
+P02-T01
 
 ## Status
 
-AWAITING REVIEW
+NOT STARTED
 
 ## Completed
 
@@ -55,5 +55,4 @@ none
 
 ## Developer Test
 
-- [ ] `uv sync && uv run pytest && uv run ruff check .` 한 줄로 전부 통과 확인
-- [ ] `uv run python scripts/run_experiment.py --help` 출력 확인
+none
