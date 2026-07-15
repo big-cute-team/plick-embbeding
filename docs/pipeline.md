@@ -1,0 +1,71 @@
+# pipeline — 진행·태스크 통합 관리
+
+> 이 **한 파일**에서 페이즈·세부 태스크·진행상태를 모두 관리한다.
+> 세션 시작·골든 루프·브랜치/커밋/테스트 규칙은 [AGENT_GUIDE.md](AGENT_GUIDE.md).
+> 각 페이즈의 상세 설계(목표·변경 범위·완료 조건)는 [phases/](phases/) 파일.
+>
+> 체크 방법: 태스크 `- [ ] T#`를 구현→'✔ 검증' 초록 확인→`- [x]`.
+> **페이즈 완료 = 그 페이즈 태스크 전부 [x]** → 현황표 상태·태스크 수 갱신.
+> 상태: `▶ current` `✅ done` `⛔ blocked` `⬜ todo`
+
+목표: Gemini vs OpenAI 임베딩을 정답 라벨로 채점(ARI·묶음 정확도)해 **최적 구성
+선정** → 증분 중복 묶기·수집 파이프라인 검증 → plick-ai 이식.
+
+## 현황표
+| # | 페이즈 | 티켓 | 상태 | 태스크 |
+|---|---|---|---|---|
+| 01 | 프로젝트 뼈대 | — (이식 전) | ✅ done | — |
+| 02 | PoC 이관 + 기준선 확립 | — (이식 전) | ✅ done | — |
+| 03 | 정답 라벨 + 정량 평가 러너 | — (이식 전) | ✅ done | — |
+| 04 | LLM Wiki(Obsidian) 구축 | — (이식 전) | ✅ done | — |
+| 05 | 모델별 실험 (2인 병렬: Gemini/OpenAI) | 트랙 B: KAN-3 하위(발행 예정) | ▶ current | B: 2/4 |
+| 06 | 결과 종합 · 최적 구성 선정 | 미발행 | ⬜ todo | — |
+| 07 | 증분 중복 묶기 + 예외 케이스 | 미발행 | ⬜ todo | — |
+| 08 | 수집→임베딩→벡터 저장 파이프라인 | 미발행 | ⬜ todo | — |
+
+> **컨벤션 이식(2026-07-15)**: agentic-starter 골든 루프 → plick-ai 방식(develop
+> 브랜치 모델 + KAN 티켓 + pipeline.md)으로 전환. Phase 01~04는 이식 전에 완료돼
+> 페이즈별 KAN 티켓이 없다. Phase 05 트랙 B(OpenAI)부터 에픽 **KAN-3 "[기능]
+> AI 가공"** 하위 작업(Task) 티켓으로 관리한다. 상세는 [DECISIONS.md](DECISIONS.md).
+
+## 완료된 페이즈 (01~04) — 상세는 phases/, 결과는 wiki/
+
+- **01 프로젝트 뼈대**: uv·pyproject, `src/plick_embedding/{providers,pipeline,eval,report}`,
+  settings(.env 로드), 러너 뼈대, ruff.
+- **02 PoC 이관 + 기준선**: articles90(90건) 고정, Gemini 임베딩·병합형 군집화·
+  최근 24시간만 비교·리포트. 기준선 SEMANTIC@0.85.
+- **03 정답 라벨 + 채점기**: `data/labels/articles90.json`(56이슈), `eval/scoring.py`
+  (ARI·묶음 정확도·잘못 합침/잘못 나뉨). 기준선 ARI 0.9071·F1 0.9091.
+- **04 LLM Wiki**: `wiki/`(INDEX·모델·개념·실험 노트), 실행 시 노트 자동 생성
+  (`report/wiki.py`), 과거 실험 4건 백필, 링크·목차 점검 테스트.
+
+## 05 — 모델별 실험 (2인 병렬)
+**목표**: 트랙 A(Gemini)·트랙 B(OpenAI)가 각자 실험 매트릭스를 독립 설계·실행하고
+정답 라벨로 채점, 결과를 wiki에 같은 지표로 남겨 Phase 06 비교 재료를 만든다.
+**상세**: [phases/05-parallel-experiments.md](phases/05-parallel-experiments.md) ·
+**계획 노트**: `wiki/plans/`
+
+**트랙 A — Gemini (담당: 팀원)** — 이 리포에서 별도 관리(팀원 몫)
+
+**트랙 B — OpenAI (담당: 본인)** · 티켓: 에픽 KAN-3 하위 작업(발행 예정, Part B)
+- [x] **T05** OpenAI 임베딩 실험 계획(모델·차원·임계값 조합) — ✔ `wiki/plans/트랙B_OpenAI_매트릭스.md`
+- [x] **T06** OpenAI 임베딩(text-embedding-3) 연동 — ✔ `providers/openai.py` + 러너 + 캐시 테스트(총 26개 초록)
+- [ ] **T07** OpenAI 임베딩 실험·채점(짧은요약 4세트) — ✔ wiki 실험 노트 4개 + 최고 구성 확인 (진행 중)
+- [ ] **T08** OpenAI 최적 구성 선정(최고 구성·임계 유지 폭·비용) — ✔ `wiki/models/text-embedding-3.md` 요약
+- [ ] **(보류)** 상세요약 임베딩 비교 — summary_detail 스냅샷·입력 옵션 필요
+
+---
+
+## 로그 (최신 위)
+- **컨벤션 이식(2026-07-15)**: plick-ai의 개발 규칙(Jira KAN·브랜치·커밋)과 구조
+  (pipeline.md·develop 모델)를 전면 이식. develop 브랜치 생성, CLAUDE·AGENT_GUIDE·
+  CONVENTIONS 재작성, pipeline.md 신설(현 상태 이관), PROGRESS는 얇은 포인터로 축소.
+  이후 OpenAI 작업은 KAN-3 하위 티켓 단위로 진행. 브랜치 `chore/adopt-plickai-conventions`.
+- **Phase 05 트랙 B 진행(2026-07-15)**: T05(매트릭스 설계)·T06(OpenAI 모듈) 완료.
+  T07(짧은요약 4세트 실험)은 일부 실행(3/4세트) 후 이식 작업으로 중단 — 티켓 발행
+  후 재개. 상세요약 축은 보류(스냅샷 선행 필요).
+- **Phase 04 완료(2026-07-15)**: LLM Wiki 구축, 검토 통과.
+- **Phase 03 완료(2026-07-15)**: 정답 라벨·채점기, 검토 통과. 라벨 원칙 "같은 이슈=
+  똑같은 사건, 본문으로 판정"(7358 정정). 기준선 ARI 0.9071.
+- **Phase 02 완료(2026-07-14)**: articles90 고정 + Gemini 기준선 실험·눈 검증.
+- **Phase 01 완료(2026-07-14)**: 프로젝트 뼈대.

@@ -1,17 +1,21 @@
-# CONVENTIONS
+# CONVENTIONS — 코드 컨벤션 (단일 정본)
 
-## 커밋
+> 이 리포의 코드 스타일 규칙 정본. 도구가 강제한다: **ruff**(포맷+린트, pyproject.toml).
+> CLAUDE.md의 "코드 표준"은 이 문서의 요약이며, 충돌 시 **이 문서가 우선**.
 
-- 형식: `<type>(phase-NN): <요약>` — 예: `feat(phase-03): 주문 취소 API 추가`
-- type: `feat` / `fix` / `refactor` / `test` / `docs` / `chore`
-- phase 밖의 잡무(설정 등)는 `chore: <요약>`
-- 하나의 커밋은 하나의 논리적 변경. phase 완료 시점에는 반드시 커밋이 존재해야 한다.
+## 커밋/브랜치
+`docs/AGENT_GUIDE.md` §3(브랜치)·§4(커밋)를 따른다(여기서 중복하지 않음).
+요지: `main ← develop ← <type>/KAN-###-<slug>`, 커밋 `<type>: 요약 (KAN-###)`,
+한 태스크=한 커밋, **Co-Authored-By 트레일러 금지**, 커밋 자동·푸시는 승인.
 
 ## 코드 스타일
 
 - Python 3.12, uv 관리. 린트·포맷은 ruff 하나로 통일 (`ruff check` + `ruff format`).
+- ruff: **line-length 100**, 4-space 들여쓰기, 문자열 **double quote**, 개행 `lf`,
+  import 순서(isort) 강제. 커밋 전 `uv run ruff format .` + `uv run ruff check .`.
 - 네이밍: 모듈·함수·변수 `snake_case`, 클래스 `PascalCase`, 상수 `UPPER_SNAKE`.
-- 공개 함수에는 타입 힌트를 붙인다. 설정·실험 파라미터는 dataclass로 묶는다.
+- 공개 함수 시그니처에 타입 힌트 필수(`Any` 지양). 설정·실험 파라미터는 dataclass로.
+- 주석 언어는 한국어 허용, **식별자는 영어**.
 - API 키는 `.env`(`GEMINI_API_KEY`, `OPENAI_API_KEY`)로만 주입. 코드·커밋에
   키를 넣지 않는다.
 - 외부 API 호출은 재시도(지수 백오프) + 부분 실패 시 캐시로 재개 가능하게.
@@ -41,7 +45,7 @@
 
 ## 문서
 
-- 프로젝트 상태 변경은 반드시 `docs/PROGRESS.md`에 반영한다.
+- 진행 상태(페이즈·태스크)는 `docs/pipeline.md`가 단일 소스다.
 - 스펙 밖 설계 결정은 `docs/DECISIONS.md`에 한 줄 추가한다.
 - 문서는 짧게 유지한다. 오래된 내용은 남겨두지 말고 지운다 —
   git 히스토리가 과거를 기억한다.
