@@ -108,3 +108,11 @@
   (짧은 텍스트=유사도 전반 상승). 노트는 남기지 않고(음성) 이 로그로 갈음.
   입력 구성 모드는 `pipeline/articles.py::embed_texts`(title/title_short), 노트
   이름·config에 input_text 반영(기본 title_short는 이름에 미표기).
+- 2026-07-15 [P05/KAN-186] 상세요약(제목+상세요약) 축 실험 = 고차원에서 큰 개선.
+  선행: 같은 90건에 summary_detail만 채운 data/articles_detail.json 생성
+  (`scripts/fetch_summary_detail.py`, id 기준 보강, 평균 81자). 결과(0.01 스윕 최고
+  ARI): small/768 0.7114, small/1536 0.7751, large/768 0.7864, **large/1536 0.8077**
+  (@0.65, F1 0.8118 — OpenAI 통틀어 최고). 상세요약은 1536차원을 크게 끌어올리나
+  (large/1536 +0.051, small/1536 +0.049) 768차원은 이득 없음(large/768 0.7976→0.7864).
+  Gemini 0.9071과 격차 0.10. 최종 선정은 T08/Phase 06. 비교는 [[text-embedding-3]]
+  모델 노트에 기록.

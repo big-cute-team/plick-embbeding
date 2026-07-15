@@ -53,7 +53,8 @@
 - [x] **T07** (KAN-184) OpenAI 임베딩 실험·채점(짧은요약 4세트) — ✔ wiki 실험 노트 4개 + 최고 구성 확인
   (최고: large/768 @0.55 ARI 0.7545 · `scripts/sweep_threshold.py`)
 - [ ] **T08** (KAN-185) OpenAI 최적 구성 선정 — ✔ `wiki/models/text-embedding-3.md` 요약
-- [ ] **(보류)** (KAN-186) 상세요약 임베딩 비교 — summary_detail 스냅샷·입력 옵션 필요
+- [x] **(KAN-186) 상세요약 임베딩 비교** — ✔ articles_detail90 스냅샷 + title_detail 4세트
+  (최고 large/1536 @0.65 상세요약 ARI 0.8077, OpenAI 통틀어 최고). 비교는 text-embedding-3 노트
 
 > 백로그 티켓(2026-07-15): KAN-182~186을 에픽 KAN-3 하위 작업으로 생성.
 > T05·T06은 이미 구현 완료(코드/노트 존재) — 티켓 상태는 백로그(해야 할 일)로 두고
@@ -62,6 +63,10 @@
 ---
 
 ## 로그 (최신 위)
+- **KAN-186 완료(2026-07-15)**: 상세요약 축 실험. 선행 스냅샷 articles_detail90
+  (`fetch_summary_detail.py`) + title_detail 4세트. 상세요약이 1536차원을 크게
+  끌어올려 **large/1536 @0.65 ARI 0.8077**(OpenAI 최고). 768은 이득 없음. 비교표는
+  text-embedding-3 모델 노트. 브랜치 `feat/KAN-186-summary-detail`(feat/KAN-184 위 스택).
 - **T07 후속 분석(2026-07-15)**: 임계값 촘촘 스윕(0.01)으로 peak 보정 —
   진짜 최고 **large/768 @0.57 ARI 0.7976**(0.7545→). "제목만" 입력 축은 음성
   (큰 모델에서 크게 하락) → 상세요약 축 유망. 입력 구성 모드(`embed_texts`)·
