@@ -7,8 +7,10 @@ import numpy as np
 from plick_embedding.providers.base import EmbeddingConfig, l2_normalize
 from plick_embedding.providers.cache import EmbeddingCache
 from plick_embedding.providers.gemini import GeminiEmbeddingProvider
+from plick_embedding.providers.openai import OpenAIEmbeddingProvider
 
 CONFIG = EmbeddingConfig(model="test-model", task_type="SEMANTIC_SIMILARITY", dim=4)
+OPENAI_CONFIG = EmbeddingConfig(model="text-embedding-3-small", task_type="none", dim=4)
 
 
 def test_l2_normalize_unit_length() -> None:
@@ -51,3 +53,20 @@ def test_gemini_provider_uses_cache_without_api(tmp_path: Path) -> None:
     assert provider._client is None  # API 호출 없음
     assert np.allclose(result[0], [1, 0, 0, 0])
     assert np.allclose(result[1], [0, 1, 0, 0])
+
+
+def test_openai_provider_uses_cache_without_api(tmp_path: Path) -> None:
+    """OpenAI도 모든 텍스트가 캐시에 있으면 API 클라이언트를 만들지 않는다."""
+    cache = EmbeddingCache(cache_dir=tmp_path)
+    texts = ["기사 하나", "기사 둘"]
+    for i, text in enumerate(texts):
+        vector = np.zeros(4, dtype=np.float32)
+        vector[i] = 1.0
+        cache.put(text, OPENAI_CONFIG, vector)
+
+    provider = OpenAIEmbeddingProvider(OPENAI_CONFIG, api_key="fake-key", cache=cache)
+    result = provider.embed(texts)
+
+    assert result.shape == (2, 4)
+    assert provider._client is None  # API 호출 없음
+    assert np.allclose(result[0], [1, 0, 0, 0])

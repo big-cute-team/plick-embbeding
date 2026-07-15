@@ -9,11 +9,11 @@
 
 ## Current Task
 
-P05-T01
+P05-T07 (트랙 B 실험 실행 — 매트릭스 승인 대기)
 
 ## Status
 
-NOT STARTED
+IN PROGRESS
 
 ## Completed
 
@@ -26,6 +26,16 @@ NOT STARTED
 - [ ] Phase 07 — 증분 중복 묶기 + 예외 케이스
 - [ ] Phase 08 — 수집→임베딩→벡터 저장 파이프라인
 
+## Working Notes
+
+- 2026-07-15 Phase 05 트랙 B — T01·T05·T06 완료(비용 없는 부분). T01
+  wiki/plans/공통 실험 기준.md, T05 wiki/plans/트랙B_OpenAI_매트릭스.md
+  (모델 small/large × 차원 768/1536 × 임계 0.30~0.65 훑기, 임베딩 4세트),
+  T06 providers/openai.py(text-embedding-3, dimensions 옵션·캐시·백오프,
+  task_type 없음→"none") + 러너 연동(--model openai-small/large) + 테스트
+  (총 26개 통과). INDEX에 plans/ 섹션 추가. 남은 것: T07 유료 실험(4세트,
+  예상 ~$0.002)은 매트릭스 승인 후 실행 → T08 요약. 트랙 A(Gemini)는 팀원 몫.
+  ※ Phase 05는 두 트랙·유료 실험이 남아 IN PROGRESS 유지(부분 완료).
 - 2026-07-15 Phase 04 완료 (검토 대기). 만든 것: wiki/00-INDEX.md(목차+현재
   최적 구성+위키 작성 규칙), templates/experiment-note.md(노트 양식),
   report/wiki.py(실험 실행 시 wiki/experiments/에 노트 자동 생성+목차 행

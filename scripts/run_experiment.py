@@ -17,11 +17,17 @@ from plick_embedding.pipeline.clustering import cluster_embeddings
 from plick_embedding.pipeline.window import split_clusters_by_window
 from plick_embedding.providers.base import EmbeddingConfig
 from plick_embedding.providers.gemini import GeminiEmbeddingProvider
+from plick_embedding.providers.openai import OpenAIEmbeddingProvider
 from plick_embedding.report.report import ExperimentConfig, build_clusters, write_report
 from plick_embedding.report.wiki import write_wiki_note
 from plick_embedding.settings import PROJECT_ROOT, load_settings
 
-MODEL_NAMES = {"gemini": "gemini-embedding-001"}
+MODEL_NAMES = {
+    "gemini": "gemini-embedding-001",
+    "openai-small": "text-embedding-3-small",
+    "openai-large": "text-embedding-3-large",
+}
+OPENAI_MODELS = {"openai-small", "openai-large"}
 
 
 def parse_window(value: str) -> timedelta:
@@ -93,16 +99,24 @@ def main() -> None:
             f"입력 파일이 없습니다: {args.input}\n"
             "P02-T01(실험 데이터 가져오기)로 data/에 스냅샷을 준비하세요."
         )
-    if not settings.has_gemini:
+    is_openai = args.model in OPENAI_MODELS
+    if is_openai and not settings.has_openai:
+        sys.exit("OPENAI_API_KEY가 없습니다. .env를 확인하세요 (.env.example 참고).")
+    if not is_openai and not settings.has_gemini:
         sys.exit("GEMINI_API_KEY가 없습니다. .env를 확인하세요 (.env.example 참고).")
 
     articles = load_articles(args.input)
     print(f"기사 {len(articles)}건 로드: {args.input}")
 
+    # OpenAI는 용도 설정(task_type)이 없다 → "none"으로 고정
+    task_type = "none" if is_openai else args.task_type
     embedding_config = EmbeddingConfig(
-        model=MODEL_NAMES[args.model], task_type=args.task_type, dim=args.dim
+        model=MODEL_NAMES[args.model], task_type=task_type, dim=args.dim
     )
-    provider = GeminiEmbeddingProvider(embedding_config, api_key=settings.gemini_api_key)
+    if is_openai:
+        provider = OpenAIEmbeddingProvider(embedding_config, api_key=settings.openai_api_key)
+    else:
+        provider = GeminiEmbeddingProvider(embedding_config, api_key=settings.gemini_api_key)
     embeddings = provider.embed([a.embed_text for a in articles])
     print(f"임베딩 완료: {embeddings.shape}")
 
