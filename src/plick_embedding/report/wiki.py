@@ -17,9 +17,39 @@ DEFAULT_WIKI_DIR = PROJECT_ROOT / "wiki"
 _TABLE_HEADER = "| 날짜 | 노트 | 구성 | 결과 |"
 
 
+_MODEL_TAGS = {
+    "gemini-embedding-001": "gemini",
+    "text-embedding-3-small": "oai-small",
+    "text-embedding-3-large": "oai-large",
+}
+
+
+def _model_tag(model: str) -> str:
+    """노트 이름용 짧은 모델 태그 (모르는 모델은 이름 그대로)."""
+    return _MODEL_TAGS.get(model, model)
+
+
+# OpenAI small/large는 wiki/models/text-embedding-3.md 한 노트를 공유한다.
+_MODEL_NOTES = {
+    "text-embedding-3-small": "text-embedding-3",
+    "text-embedding-3-large": "text-embedding-3",
+}
+
+
+def _model_note(model: str) -> str:
+    """모델 설명 노트(models/) 링크 대상 — OpenAI 계열은 한 노트로 묶는다."""
+    return _MODEL_NOTES.get(model, model)
+
+
 def _task_label(task_type: str) -> str:
     """SEMANTIC_SIMILARITY → SEMANTIC 처럼 앞 토큰만 (노트 이름 짧게)."""
     return task_type.split("_")[0]
+
+
+def _input_tag(input_text: str) -> str:
+    """입력 구성 토큰 — 기본(title_short)은 빈 문자열이라 기존 노트 이름을 유지하고,
+    다른 구성(title 등)만 이름에 드러나 세트끼리 안 겹친다."""
+    return "" if input_text == "title_short" else input_text
 
 
 def _dataset_slug(config: ExperimentConfig) -> str:
@@ -29,12 +59,19 @@ def _dataset_slug(config: ExperimentConfig) -> str:
 
 
 def note_stem(config: ExperimentConfig, run_at: datetime) -> str:
-    """노트 파일명(확장자 제외) = 날짜_데이터셋_task_임계_비교범위."""
+    """노트 파일명(확장자 제외) = 날짜_데이터셋_모델·차원_task_임계_비교범위.
+
+    OpenAI는 task_type이 모두 'none'이라 모델·차원이 없으면 세트끼리 이름이
+    겹쳐 덮어써진다. 모델 태그와 차원을 넣어 (모델×차원×임계)마다 고유하게 한다.
+    """
     window = int(config.window_hours) if config.window_hours.is_integer() else config.window_hours
-    return (
-        f"{run_at:%Y-%m-%d}_{_dataset_slug(config)}_"
-        f"{_task_label(config.task_type)}_{config.threshold}_{window}h"
-    )
+    input_tag = _input_tag(config.input_text)
+    parts = [f"{run_at:%Y-%m-%d}", _dataset_slug(config)]
+    if input_tag:
+        parts.append(input_tag)
+    parts.append(f"{_model_tag(config.model)}-d{config.dim}")
+    parts.append(f"{_task_label(config.task_type)}_{config.threshold}_{window}h")
+    return "_".join(parts)
 
 
 def write_wiki_note(
@@ -71,6 +108,7 @@ def _render_note(
         "---",
         f"model: {config.model}",
         f"task_type: {config.task_type}",
+        f"input_text: {config.input_text}",
         f"dim: {config.dim}",
         f"threshold: {config.threshold}",
         f"window_hours: {window}",
@@ -92,6 +130,7 @@ def _render_note(
         "|------|-----|",
         f"| 모델 | {config.model} |",
         f"| task_type | {config.task_type} ([[task_type]]) |",
+        f"| 입력 구성 | {config.input_text} |",
         f"| 차원 / 정규화 | {config.dim} / L2 |",
         f"| 임계값 | {config.threshold} |",
         f"| 비교 범위 | 최근 {window}시간만 비교 ([[최근 24시간만 비교]]) |",
@@ -120,7 +159,7 @@ def _render_note(
         "## 참고",
         "",
         f"- 산출물: `{run_dir}`" if run_dir else "- 산출물: `results/<타임스탬프>/`",
-        f"- 모델: [[{config.model}]]",
+        f"- 모델: [[{_model_note(config.model)}]]",
         "",
     ]
     return "\n".join(lines)
@@ -162,7 +201,10 @@ def _update_index(
     result = (
         f"ARI {score.ari:.4f} · F1 {score.pairwise.f1:.4f}" if score else "이슈/묶음 수는 노트 참조"
     )
-    config_desc = f"{_task_label(config.task_type)} · {config.threshold} · {_dataset_slug(config)}"
+    config_desc = (
+        f"{_model_tag(config.model)} d{config.dim} · "
+        f"{_task_label(config.task_type)} · {config.threshold} · {_dataset_slug(config)}"
+    )
     row = f"| {run_at:%Y-%m-%d} | [[{stem}]] | {config_desc} | {result} |"
 
     lines = index_path.read_text(encoding="utf-8").splitlines()

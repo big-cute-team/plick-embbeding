@@ -18,7 +18,7 @@
 | 02 | PoC 이관 + 기준선 확립 | — (이식 전) | ✅ done | — |
 | 03 | 정답 라벨 + 정량 평가 러너 | — (이식 전) | ✅ done | — |
 | 04 | LLM Wiki(Obsidian) 구축 | — (이식 전) | ✅ done | — |
-| 05 | 모델별 실험 (2인 병렬: Gemini/OpenAI) | 트랙 B: KAN-182~186 (KAN-3 하위) | ▶ current | B: 2/4 |
+| 05 | 모델별 실험 (2인 병렬: Gemini/OpenAI) | 트랙 B: KAN-182~186 (KAN-3 하위) | ▶ current | B: 3/4 |
 | 06 | 결과 종합 · 최적 구성 선정 | 미발행 | ⬜ todo | — |
 | 07 | 증분 중복 묶기 + 예외 케이스 | 미발행 | ⬜ todo | — |
 | 08 | 수집→임베딩→벡터 저장 파이프라인 | 미발행 | ⬜ todo | — |
@@ -50,7 +50,8 @@
 **트랙 B — OpenAI (담당: 본인)** · 티켓: 에픽 KAN-3 하위 작업(백로그)
 - [x] **T05** (KAN-182) OpenAI 임베딩 실험 계획 — ✔ `wiki/plans/트랙B_OpenAI_매트릭스.md`
 - [x] **T06** (KAN-183) OpenAI 임베딩 연동 — ✔ `providers/openai.py` + 러너 + 캐시 테스트(총 26개 초록)
-- [ ] **T07** (KAN-184) OpenAI 임베딩 실험·채점(짧은요약 4세트) — ✔ wiki 실험 노트 4개 + 최고 구성 확인
+- [x] **T07** (KAN-184) OpenAI 임베딩 실험·채점(짧은요약 4세트) — ✔ wiki 실험 노트 4개 + 최고 구성 확인
+  (최고: large/768 @0.55 ARI 0.7545 · `scripts/sweep_threshold.py`)
 - [ ] **T08** (KAN-185) OpenAI 최적 구성 선정 — ✔ `wiki/models/text-embedding-3.md` 요약
 - [ ] **(보류)** (KAN-186) 상세요약 임베딩 비교 — summary_detail 스냅샷·입력 옵션 필요
 
@@ -61,6 +62,14 @@
 ---
 
 ## 로그 (최신 위)
+- **T07 후속 분석(2026-07-15)**: 임계값 촘촘 스윕(0.01)으로 peak 보정 —
+  진짜 최고 **large/768 @0.57 ARI 0.7976**(0.7545→). "제목만" 입력 축은 음성
+  (큰 모델에서 크게 하락) → 상세요약 축 유망. 입력 구성 모드(`embed_texts`)·
+  `--no-note`·타임스탬프 충돌 수정 추가. 노트 4개 촘촘 peak로 재생성. 아직 T08 아님.
+- **T07 완료(2026-07-15, KAN-184)**: OpenAI 짧은요약 4세트(small/large×768/1536)
+  임계값 0.30~0.65 스윕·채점. 최고 large/768 @0.55 ARI 0.7545(Gemini 0.9071 대비 낮음).
+  `scripts/sweep_threshold.py` 추가, 노트 이름에 모델·차원 반영(덮어쓰기 버그 수정).
+  실험 노트 4개 + DECISIONS 기록. 브랜치 `feat/KAN-184-openai-experiment`.
 - **컨벤션 이식(2026-07-15)**: plick-ai의 개발 규칙(Jira KAN·브랜치·커밋)과 구조
   (pipeline.md·develop 모델)를 전면 이식. develop 브랜치 생성, CLAUDE·AGENT_GUIDE·
   CONVENTIONS 재작성, pipeline.md 신설(현 상태 이관), PROGRESS는 얇은 포인터로 축소.
