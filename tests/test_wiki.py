@@ -60,7 +60,7 @@ def _sample_config() -> ExperimentConfig:
 
 def test_note_stem_format() -> None:
     stem = note_stem(_sample_config(), datetime(2026, 7, 15, 10, 0))
-    assert stem == "2026-07-15_articles90_SEMANTIC_0.85_24h"
+    assert stem == "2026-07-15_articles90_gemini-d768_SEMANTIC_0.85_24h"
 
 
 def test_write_wiki_note_creates_note_and_index_row(tmp_path) -> None:
@@ -91,12 +91,12 @@ def test_write_wiki_note_creates_note_and_index_row(tmp_path) -> None:
     note = write_wiki_note(config, [articles], run_at, score=score, wiki_dir=wiki)
 
     body = note.read_text(encoding="utf-8")
-    assert note.name == "2026-07-15_articles90_SEMANTIC_0.85_24h.md"
+    assert note.name == "2026-07-15_articles90_gemini-d768_SEMANTIC_0.85_24h.md"
     assert "ari: 0.9071" in body  # 머리말에 점수
     assert "task_type: SEMANTIC_SIMILARITY" in body  # 머리말에 조건
     assert "잘못 합침" in body  # 대표 사례
     index = (wiki / "00-INDEX.md").read_text(encoding="utf-8")
-    assert "[[2026-07-15_articles90_SEMANTIC_0.85_24h]]" in index  # 목차 등록
+    assert "[[2026-07-15_articles90_gemini-d768_SEMANTIC_0.85_24h]]" in index  # 목차 등록
 
 
 def test_write_wiki_note_replaces_existing_row(tmp_path) -> None:
@@ -113,4 +113,4 @@ def test_write_wiki_note_replaces_existing_row(tmp_path) -> None:
     for _ in range(2):
         write_wiki_note(config, [], run_at, score=None, wiki_dir=wiki)
     index = (wiki / "00-INDEX.md").read_text(encoding="utf-8")
-    assert index.count("[[2026-07-15_articles90_SEMANTIC_0.85_24h]]") == 1
+    assert index.count("[[2026-07-15_articles90_gemini-d768_SEMANTIC_0.85_24h]]") == 1
