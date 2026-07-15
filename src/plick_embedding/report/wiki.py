@@ -46,6 +46,12 @@ def _task_label(task_type: str) -> str:
     return task_type.split("_")[0]
 
 
+def _input_tag(input_text: str) -> str:
+    """입력 구성 토큰 — 기본(title_short)은 빈 문자열이라 기존 노트 이름을 유지하고,
+    다른 구성(title 등)만 이름에 드러나 세트끼리 안 겹친다."""
+    return "" if input_text == "title_short" else input_text
+
+
 def _dataset_slug(config: ExperimentConfig) -> str:
     """입력 파일명 + 건수 → 예: articles90."""
     stem = Path(config.input_path).stem
@@ -59,11 +65,13 @@ def note_stem(config: ExperimentConfig, run_at: datetime) -> str:
     겹쳐 덮어써진다. 모델 태그와 차원을 넣어 (모델×차원×임계)마다 고유하게 한다.
     """
     window = int(config.window_hours) if config.window_hours.is_integer() else config.window_hours
-    return (
-        f"{run_at:%Y-%m-%d}_{_dataset_slug(config)}_"
-        f"{_model_tag(config.model)}-d{config.dim}_"
-        f"{_task_label(config.task_type)}_{config.threshold}_{window}h"
-    )
+    input_tag = _input_tag(config.input_text)
+    parts = [f"{run_at:%Y-%m-%d}", _dataset_slug(config)]
+    if input_tag:
+        parts.append(input_tag)
+    parts.append(f"{_model_tag(config.model)}-d{config.dim}")
+    parts.append(f"{_task_label(config.task_type)}_{config.threshold}_{window}h")
+    return "_".join(parts)
 
 
 def write_wiki_note(
@@ -100,6 +108,7 @@ def _render_note(
         "---",
         f"model: {config.model}",
         f"task_type: {config.task_type}",
+        f"input_text: {config.input_text}",
         f"dim: {config.dim}",
         f"threshold: {config.threshold}",
         f"window_hours: {window}",
@@ -121,6 +130,7 @@ def _render_note(
         "|------|-----|",
         f"| 모델 | {config.model} |",
         f"| task_type | {config.task_type} ([[task_type]]) |",
+        f"| 입력 구성 | {config.input_text} |",
         f"| 차원 / 정규화 | {config.dim} / L2 |",
         f"| 임계값 | {config.threshold} |",
         f"| 비교 범위 | 최근 {window}시간만 비교 ([[최근 24시간만 비교]]) |",

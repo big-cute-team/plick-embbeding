@@ -4,8 +4,17 @@ from datetime import datetime, timedelta
 
 import numpy as np
 
+from plick_embedding.pipeline.articles import Article, embed_texts
 from plick_embedding.pipeline.clustering import cluster_embeddings
 from plick_embedding.pipeline.window import split_clusters_by_window
+
+
+def test_embed_texts_modes() -> None:
+    """입력 구성 모드에 따라 제목만 / 제목+짧은요약을 만든다."""
+    articles = [Article("a", "제목", "요약", datetime(2026, 7, 15, 1, 0))]
+    assert embed_texts(articles, "title") == ["제목"]
+    assert embed_texts(articles, "title_short") == ["제목\n요약"]
+    assert embed_texts(articles) == ["제목\n요약"]  # 기본값
 
 
 def _unit(vector: list[float]) -> list[float]:

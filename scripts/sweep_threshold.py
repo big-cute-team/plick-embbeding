@@ -14,7 +14,7 @@ from pathlib import Path
 
 from plick_embedding.eval.labels import load_labels
 from plick_embedding.eval.scoring import score as score_clusters
-from plick_embedding.pipeline.articles import load_articles
+from plick_embedding.pipeline.articles import EMBED_TEXT_MODES, embed_texts, load_articles
 from plick_embedding.pipeline.clustering import cluster_embeddings
 from plick_embedding.pipeline.window import split_clusters_by_window
 from plick_embedding.providers.base import EmbeddingConfig
@@ -60,6 +60,17 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--start", type=float, default=0.30)
     parser.add_argument("--stop", type=float, default=0.65)
     parser.add_argument("--step", type=float, default=0.05)
+    parser.add_argument(
+        "--input-text",
+        choices=sorted(EMBED_TEXT_MODES),
+        default="title_short",
+        help="임베딩 입력 구성 (기본: title_short = 제목+짧은요약)",
+    )
+    parser.add_argument(
+        "--no-note",
+        action="store_true",
+        help="노트·results를 남기지 않고 스윕 표만 출력 (탐색용)",
+    )
     return parser
 
 
@@ -94,8 +105,11 @@ def main() -> None:
         provider = OpenAIEmbeddingProvider(embedding_config, api_key=settings.openai_api_key)
     else:
         provider = GeminiEmbeddingProvider(embedding_config, api_key=settings.gemini_api_key)
-    embeddings = provider.embed([a.embed_text for a in articles])
-    print(f"임베딩 완료: {embeddings.shape} — 임계값 훑기는 API를 다시 안 부릅니다\n")
+    embeddings = provider.embed(embed_texts(articles, args.input_text))
+    print(
+        f"임베딩 완료: {embeddings.shape} · 입력 {args.input_text} "
+        "— 임계값 훑기는 API를 다시 안 부릅니다\n"
+    )
 
     best_threshold = None
     best_score = None
@@ -116,10 +130,17 @@ def main() -> None:
             f"{len(s.overmerges):>7} | {len(s.oversplits):>7}{mark}"
         )
 
+    tail = (
+        "탐색 모드(--no-note): 노트를 남기지 않습니다."
+        if args.no_note
+        else "이 지점만 노트로 남깁니다."
+    )
     print(
         f"\n최고 ARI: {best_score.ari:.4f} @ 임계값 {best_threshold:.2f} "
-        f"(F1 {best_score.pairwise.f1:.4f}) — 이 지점만 노트로 남깁니다."
+        f"(F1 {best_score.pairwise.f1:.4f}) — {tail}"
     )
+    if args.no_note:
+        return
 
     config = ExperimentConfig(
         model=embedding_config.model,
@@ -129,6 +150,7 @@ def main() -> None:
         window_hours=args.window.total_seconds() / 3600,
         input_path=str(input_path),
         n_articles=len(articles),
+        input_text=args.input_text,
     )
     run_at = datetime.now()
     run_dir = write_report(config, articles, best_labels, score=best_score, run_at=run_at)

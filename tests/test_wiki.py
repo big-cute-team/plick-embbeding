@@ -63,6 +63,20 @@ def test_note_stem_format() -> None:
     assert stem == "2026-07-15_articles90_gemini-d768_SEMANTIC_0.85_24h"
 
 
+def test_note_stem_input_text_tag() -> None:
+    """기본(title_short)은 이름에 안 드러나고, 다른 입력 구성만 토큰이 붙는다."""
+    from dataclasses import replace
+
+    base = _sample_config()
+    at = datetime(2026, 7, 15, 10, 0)
+    assert note_stem(replace(base, input_text="title_short"), at) == (
+        "2026-07-15_articles90_gemini-d768_SEMANTIC_0.85_24h"
+    )
+    assert note_stem(replace(base, input_text="title"), at) == (
+        "2026-07-15_articles90_title_gemini-d768_SEMANTIC_0.85_24h"
+    )
+
+
 def test_write_wiki_note_creates_note_and_index_row(tmp_path) -> None:
     wiki = tmp_path / "wiki"
     (wiki / "experiments").mkdir(parents=True)

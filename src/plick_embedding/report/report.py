@@ -29,6 +29,7 @@ class ExperimentConfig:
     window_hours: float
     input_path: str
     n_articles: int
+    input_text: str = "title_short"  # 임베딩 입력 구성 (title / title_short)
 
 
 def build_clusters(articles: list[Article], labels: np.ndarray) -> list[list[Article]]:
@@ -52,7 +53,13 @@ def write_report(
     score가 주어지면 정량 평가 섹션과 scores.json을 함께 남긴다.
     """
     run_at = run_at or datetime.now()
-    run_dir = results_dir / run_at.strftime("%Y%m%d_%H%M%S")
+    # 같은 초에 여러 번 실행하면 폴더가 겹친다 → 뒤에 _2, _3… 을 붙여 각 실행을 보존한다.
+    stamp = run_at.strftime("%Y%m%d_%H%M%S")
+    run_dir = results_dir / stamp
+    suffix = 2
+    while run_dir.exists():
+        run_dir = results_dir / f"{stamp}_{suffix}"
+        suffix += 1
     run_dir.mkdir(parents=True, exist_ok=False)
 
     clusters = build_clusters(articles, labels)
@@ -103,6 +110,7 @@ def render_markdown(
         "|------|-----|",
         f"| 모델 | {config.model} |",
         f"| task_type | {config.task_type} |",
+        f"| 입력 구성 | {config.input_text} |",
         f"| 차원 | {config.dim} |",
         f"| 임계값 | {config.threshold} |",
         f"| 비교 시간 범위 | 최근 {config.window_hours}시간 |",
