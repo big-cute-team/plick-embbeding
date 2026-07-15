@@ -5,22 +5,22 @@
 
 ## Current Phase
 
-04 — LLM Wiki (Obsidian) 구축 (`docs/phases/04-llm-wiki.md`)
+05 — 모델별 task_type 실험 (2인 병렬: Gemini / OpenAI) (`docs/phases/05-parallel-experiments.md`)
 
 ## Current Task
 
-none (검토 대기)
+P05-T01
 
 ## Status
 
-AWAITING REVIEW
+NOT STARTED
 
 ## Completed
 
 - [x] Phase 01 — 프로젝트 뼈대
 - [x] Phase 02 — PoC 이관 + 기준선 확립
 - [x] Phase 03 — 정답 라벨 + 정량 평가 러너 (검토 통과)
-- [x] Phase 04 — LLM Wiki (Obsidian) 구축
+- [x] Phase 04 — LLM Wiki (Obsidian) 구축 (검토 통과)
 - [ ] Phase 05 — 모델별 task_type 실험 (2인 병렬: Gemini / OpenAI)
 - [ ] Phase 06 — 결과 종합 · 최적 구성 선정
 - [ ] Phase 07 — 증분 중복 묶기 + 예외 케이스
@@ -132,6 +132,4 @@ none
 
 ## Developer Test
 
-- [ ] Obsidian으로 `wiki/` 열어 그래프 뷰·링크 동작 확인
-- [ ] `uv run python scripts/run_experiment.py --labels data/labels/articles90.json` 실행 후 `wiki/experiments/`에 새 노트와 INDEX 갱신 확인
-- [ ] 팀원(2인) 모두 보관함을 열어 같은 내용이 보이는지 확인 (git pull 기준)
+none
