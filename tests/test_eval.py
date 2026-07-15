@@ -59,7 +59,7 @@ def test_score_perfect_match() -> None:
 
 
 def test_score_detects_overmerge() -> None:
-    """서로 다른 이슈 x·y를 한 묶음으로 합치면 오병합으로 잡힌다."""
+    """서로 다른 이슈 x·y를 한 묶음으로 합치면 잘못 합침으로 잡힌다."""
     articles = [_article(i) for i in ["a", "b", "c"]]
     labels = _labelset({"a": "x", "b": "y", "c": "y"})
     pred = np.array([0, 0, 0])  # 셋 다 한 묶음
@@ -74,7 +74,7 @@ def test_score_detects_overmerge() -> None:
 
 
 def test_score_detects_oversplit() -> None:
-    """한 이슈 x를 두 묶음으로 쪼개면 과분할로 잡힌다."""
+    """한 이슈 x를 두 묶음으로 쪼개면 잘못 나뉨으로 잡힌다."""
     articles = [_article(i) for i in ["a", "b", "c"]]
     labels = _labelset({"a": "x", "b": "x", "c": "x"})
     pred = np.array([0, 0, 1])

@@ -1,4 +1,4 @@
-"""실험 실행 CLI — 임베딩 → 24h 롤링 윈도우 → 병합형 군집화 → 리포트.
+"""실험 실행 CLI — 임베딩 → 최근 24시간만 비교 → 병합형 군집화 → 리포트.
 
 예: uv run python scripts/run_experiment.py \\
         --model gemini --task-type SEMANTIC_SIMILARITY \\
@@ -26,7 +26,7 @@ MODEL_NAMES = {"gemini": "gemini-embedding-001"}
 def parse_window(value: str) -> timedelta:
     """ "24h" / "36h" 형식을 timedelta로 바꾼다."""
     if not value.endswith("h"):
-        raise argparse.ArgumentTypeError(f"윈도우는 '24h' 형식이어야 합니다: {value!r}")
+        raise argparse.ArgumentTypeError(f"비교 시간 범위는 '24h' 형식이어야 합니다: {value!r}")
     return timedelta(hours=float(value[:-1]))
 
 
@@ -58,7 +58,7 @@ def build_parser() -> argparse.ArgumentParser:
         type=parse_window,
         default=timedelta(hours=24),
         metavar="24h",
-        help="롤링 윈도우 (기본: 24h)",
+        help="최근 몇 시간 안의 기사만 비교 (기본: 24h)",
     )
     parser.add_argument(
         "--input",
@@ -124,7 +124,7 @@ def main() -> None:
         score = score_clusters(articles, labels, label_set)
         print(
             f"정량 평가: ARI {score.ari:.4f} · F1 {score.pairwise.f1:.4f} "
-            f"(오병합 {len(score.overmerges)}건 · 과분할 {len(score.oversplits)}건)"
+            f"(잘못 합침 {len(score.overmerges)}건 · 잘못 나뉨 {len(score.oversplits)}건)"
         )
 
     config = ExperimentConfig(

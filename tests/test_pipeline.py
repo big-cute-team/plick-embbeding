@@ -1,4 +1,4 @@
-"""pipeline 테스트 — 군집화·윈도우 분리. 네트워크 없이 동작해야 한다."""
+"""pipeline 테스트 — 군집화·시간 범위로 나누기. 네트워크 없이 동작해야 한다."""
 
 from datetime import datetime, timedelta
 
@@ -50,7 +50,7 @@ def test_window_splits_stale_cluster() -> None:
 
 
 def test_window_keeps_rolling_chain() -> None:
-    """이웃 간격이 윈도우 안이면 전체 길이가 24h를 넘어도 한 이슈다 (롤링)."""
+    """이웃 간격이 비교 시간 범위 안이면 전체 길이가 24h를 넘어도 한 이슈다 (이웃 간격 기준)."""
     base = datetime(2026, 6, 29, 12, 0)
     published_at = [base + timedelta(hours=20 * i) for i in range(3)]  # 총 40h
     labels = np.array([0, 0, 0])

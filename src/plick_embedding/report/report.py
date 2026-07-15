@@ -105,7 +105,7 @@ def render_markdown(
         f"| task_type | {config.task_type} |",
         f"| 차원 | {config.dim} |",
         f"| 임계값 | {config.threshold} |",
-        f"| 윈도우 | {config.window_hours}h |",
+        f"| 비교 시간 범위 | 최근 {config.window_hours}시간 |",
         f"| 입력 | {config.input_path} ({config.n_articles}건) |",
         "",
         "## 결과 요약",
@@ -129,7 +129,7 @@ def render_markdown(
 
 
 def _render_score(score: ScoreResult) -> list[str]:
-    """정량 평가 섹션 (정답 대비 ARI·쌍 단위·오병합·과분할)."""
+    """정량 평가 섹션 (정답 대비 ARI·쌍 단위·잘못 합침·잘못 나뉨)."""
     p = score.pairwise
     lines = [
         "## 정량 평가 (정답 대비)",
@@ -137,11 +137,14 @@ def _render_score(score: ScoreResult) -> list[str]:
         f"- 채점 대상: 정답 있는 기사 **{score.n_labeled}건** "
         f"(정답 없음 {score.n_unlabeled}건 제외), 정답 이슈 {score.n_truth_issues}개 "
         f"vs 예측 묶음 {score.n_pred_clusters}개",
-        f"- **ARI**: {score.ari:.4f}",
-        f"- **쌍 단위**: 정밀도 {p.precision:.4f} · 재현율 {p.recall:.4f} · "
-        f"F1 {p.f1:.4f} (TP {p.tp} · FP {p.fp} · FN {p.fn})",
+        f"- **정답과 얼마나 일치하나 (ARI)**: {score.ari:.4f} "
+        "— 1에 가까울수록 정답 묶음과 똑같이 묶었다는 뜻 (0이면 아무렇게나 묶은 수준)",
+        f"- **묶음 정확도 (기사 쌍 기준)**: 맞게 묶은 비율 {p.precision:.4f} · "
+        f"찾아낸 비율 {p.recall:.4f} · 둘의 종합점수 {p.f1:.4f}",
+        f"  - 같은 이슈인 두 기사를 실제로 같이 묶은 쌍 {p.tp}개, "
+        f"다른 이슈인데 잘못 묶은 쌍 {p.fp}개, 같은 이슈인데 놓친 쌍 {p.fn}개",
         "",
-        f"### 오병합 (서로 다른 이슈가 한 묶음, {len(score.overmerges)}건)",
+        f"### 잘못 합침 (서로 다른 이슈가 한 묶음, {len(score.overmerges)}건)",
         "",
     ]
     if not score.overmerges:
@@ -152,7 +155,7 @@ def _render_score(score: ScoreResult) -> list[str]:
         for issue, members in case.members_by_issue.items():
             lines.append(f"  - `{issue}`: {', '.join(members)}")
     lines.append("")
-    lines += [f"### 과분할 (한 이슈가 여러 묶음, {len(score.oversplits)}건)", ""]
+    lines += [f"### 잘못 나뉨 (한 이슈가 여러 묶음, {len(score.oversplits)}건)", ""]
     if not score.oversplits:
         lines += ["- 없음", ""]
     for case in score.oversplits:

@@ -4,8 +4,8 @@
 - ARI (adjusted Rand index): 군집 배정이 정답과 얼마나 일치하는지 (-0.5~1.0).
 - 쌍 단위(pairwise) 정밀도·재현율·F1: "같은 이슈면 같은 묶음" 관점에서
   기사 쌍을 맞췄는지. positive = 같은 정답 이슈인 쌍.
-- 오병합(overmerge): 예측 묶음 하나가 정답상 서로 다른 이슈를 섞은 경우.
-- 과분할(oversplit): 정답 이슈 하나가 예측에서 여러 묶음으로 쪼개진 경우.
+- 잘못 합침(overmerge): 예측 묶음 하나가 정답상 서로 다른 이슈를 섞은 경우.
+- 잘못 나뉨(oversplit): 정답 이슈 하나가 예측에서 여러 묶음으로 쪼개진 경우.
 
 정답이 없는 기사는 채점에서 제외한다 (경고는 호출부에서). 모든 계산은
 결정론적 — 같은 입력이면 항상 같은 점수·같은 사례 목록(정렬 고정)을 낸다.
@@ -32,7 +32,7 @@ class PairwiseScore:
 
 @dataclass(frozen=True)
 class MergeCase:
-    """오병합 — 예측 묶음 하나에 정답 이슈가 둘 이상 섞임."""
+    """잘못 합침 — 예측 묶음 하나에 정답 이슈가 둘 이상 섞임."""
 
     pred_cluster: int
     members_by_issue: dict[str, list[str]]  # 이슈 id → ["기사id 제목", ...]
@@ -40,7 +40,7 @@ class MergeCase:
 
 @dataclass(frozen=True)
 class SplitCase:
-    """과분할 — 정답 이슈 하나가 예측 묶음 여러 개로 흩어짐."""
+    """잘못 나뉨 — 정답 이슈 하나가 예측 묶음 여러 개로 흩어짐."""
 
     issue: str
     members_by_cluster: dict[int, list[str]]  # 예측 묶음 id → ["기사id 제목", ...]
@@ -118,7 +118,7 @@ def score(articles: list[Article], pred_labels: np.ndarray, labels: LabelSet) ->
     f1 = 2 * precision * recall / (precision + recall) if (precision + recall) else 0.0
     pairwise = PairwiseScore(precision, recall, f1, tp, fp, fn)
 
-    # 오병합·과분할 사례 (읽기용, 정렬 고정)
+    # 잘못 합침·잘못 나뉨 사례 (읽기용, 정렬 고정)
     articles_by_id = {a.id: a for a, _ in labeled}
     cluster_to_issue_members: dict[int, dict[str, list[str]]] = {}
     issue_to_cluster_members: dict[str, dict[int, list[str]]] = {}

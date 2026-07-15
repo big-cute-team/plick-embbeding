@@ -17,7 +17,7 @@
 plick-embbeding/
 ├── src/plick_embedding/
 │   ├── providers/     # Gemini·OpenAI 임베딩 클라이언트 (공통 인터페이스 + 캐시)
-│   ├── pipeline/      # 후보 좁히기(24h 윈도우) · 군집화 · 증분 중복 묶기
+│   ├── pipeline/      # 후보 좁히기(최근 24시간만 비교) · 군집화 · 증분 중복 묶기
 │   ├── eval/          # 정답 라벨 로드 · ARI · 쌍 단위 정밀도·재현율(pairwise)
 │   └── report/        # 실험 리포트 생성 (Confluence 실험 기록 템플릿 형식)
 ├── scripts/           # 실험 실행 CLI (run_experiment.py 등)
@@ -40,7 +40,7 @@ plick-embbeding/
 2. **임베딩** — providers/의 공통 인터페이스로 모델·task_type·차원을 바꿔
    호출. 같은 (텍스트 × 모델 × task_type × 차원) 조합은 캐시에서 재사용
    (API 재호출 금지).
-3. **후보 좁히기 + 군집화** — 24h 롤링 윈도우로 비교 대상을 좁히고,
+3. **후보 좁히기 + 군집화** — 최근 24시간만 비교로 비교 대상을 좁히고,
    전역 병합형 군집화(cosine, average) 또는 증분 중복 묶기으로 이슈 제안.
 4. **평가** — 정답 라벨과 비교해 ARI(군집 일치 점수)·쌍 단위 지표 산출.
 5. **리포트 → Wiki** — results/<타임스탬프>/에 config·result·report를
