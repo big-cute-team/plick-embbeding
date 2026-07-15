@@ -1,46 +1,87 @@
-# CLAUDE.md
+# CLAUDE.md — plick-embbeding (PLick 임베딩 벤치마크)
 
-이 파일은 얇은 인덱스다. 규칙 본문을 여기에 늘리지 말고 아래 문서에 둔다.
+## 이 리포는 무엇인가
 
-## 프로젝트
+PLick의 **"같은 이슈 묶기(원문 N:요약 1)"** 를 위한 **임베딩 모델 벤치마크·실험**
+리포. Gemini vs OpenAI 임베딩을 정량 비교해 최적 구성을 고르고, 수집→임베딩→
+벡터 저장→증분 중복 묶기 파이프라인을 검증한다 (최종 이식처: plick-ai).
 
-PLick의 "같은 이슈 묶기(원문 N:요약 1)"를 위한 임베딩 모델 벤치마크·실험
-리포. Gemini vs OpenAI 임베딩을 정량 비교해 최적 구성을 선정하고,
-수집→임베딩→벡터 저장→증분 중복 묶기 파이프라인을 검증한다 (최종 이식처: plick-ai).
+- **서버 없음** — CLI로 돌리는 실험·배치 리포. HTTP 엔드포인트 없음.
+- 실험은 **정답 라벨로 채점**(ARI·묶음 정확도)하고, 결과를 `results/` +
+  Obsidian 위키(`wiki/`) 노트로 남긴다. 감이 아니라 수치로 판단한다.
 
-- 스택: Python 3.12 + uv, numpy/scikit-learn, google-genai·openai, pytest·ruff.
-  서버 없음 — CLI 실험·배치 리포.
-- 실행/테스트: `uv sync` · `uv run pytest` · `uv run ruff check .` ·
-  `uv run python scripts/run_experiment.py --help`
+## 세션 시작 시 반드시 읽을 것 (순서대로)
+
+1. `CLAUDE.md` (이 문서) — 원칙·하드 규칙
+2. `docs/AGENT_GUIDE.md` — 작업 방식·골든 루프·브랜치/커밋/테스트 규칙
+3. `docs/pipeline.md` — 지금 어느 페이즈·태스크인지 (진행·태스크 통합 관리)
+
+---
+
+## 작업 4원칙 (Karpathy)
+
+### 1. 생각 먼저 (Think Before Coding)
+불확실하면 **멈추고 무엇이 헷갈리는지 이름 붙여** 물어라. 해석이 여럿이면 나열하라.
+특히 라벨 기준·실험 구성이 애매하면 코드·실험부터 돌리지 말 것.
+
+### 2. 단순함 우선 (Simplicity First)
+**명시된 문제만** 푸는 최소 코드. 투기적 기능·불필요한 추상화 금지.
+기준: "시니어 엔지니어가 오버엔지니어링이라 부를까?"
+
+### 3. 외과적 변경 (Surgical Changes)
+기존 코드를 고칠 땐 **꼭 필요한 것만**. 주변 스타일을 따르고, 무관한 죽은 코드는
+지우지 말고 언급만. 바뀐 모든 줄이 **요청에 직접 연결**돼야 한다.
+
+### 4. 목표 주도 실행 (Goal-Driven Execution)
+모든 태스크엔 **✔ 검증(테스트)** 이 있고, **그 테스트가 초록일 때만 태스크 완료**.
+실험 품질은 감이 아니라 **정답 라벨 채점**(ARI·묶음 정확도)으로 판단한다.
+
+---
+
+## 절대 규칙 (Hard Rules)
+
+- **페이즈 단위로만 진행**한다. 한 번에 한 페이즈. 끝나면 멈추고 `docs/pipeline.md`를
+  갱신. 다음 페이즈를 스스로 이어가지 않는다.
+- **완료 = 테스트 통과**. 기능 테스트 없이 태스크·페이즈를 완료 처리하지 않는다.
+- **브랜치**: `main` ← `develop` ← 페이즈/티켓 브랜치. `main`/`develop`에 **직접 커밋
+  금지**. (→ AGENT_GUIDE §3)
+- **커밋은 자동, 푸시는 승인**: 태스크 검증이 초록이면 **한 태스크=한 커밋**으로
+  자동 커밋(승인 불필요). **푸시·develop PR은 사용자가 명시적으로 요청할 때만**.
+  커밋 메시지 규칙은 AGENT_GUIDE §4 (`<type>: 요약 (KAN-###)`, Co-Authored-By 금지).
+- **실험 재현성**: 실행 1회 = `results/<타임스탬프>/` 하나(config+result+report).
+  같은 (텍스트×모델×task_type×차원) 임베딩은 캐시 재사용 — 유료 API를 두 번 부르지
+  않는다. 유료 실험(외부 API 호출·비용)은 돌리기 전 구성·비용을 사용자에게 확인.
+- **API 키는 `.env`로만** 주입(`GEMINI_API_KEY`·`OPENAI_API_KEY`). 코드·커밋에 키를
+  넣지 않는다.
+- **사람이 읽는 텍스트는 쉬운 말로** (오병합→잘못 합침, 윈도우→최근 N시간만 비교 등).
+  → `docs/CONVENTIONS.md` "용어 — 쉬운 말로 쓰기".
+
+## 스택 고정값
+Python 3.12 + **uv**(pyproject.toml) · numpy / scikit-learn(코사인·병합형 군집화·ARI) ·
+google-genai / openai(임베딩, 공급자 추상화 뒤) · 테스트 pytest(외부 API 모킹/캐시) ·
+포맷/린트 ruff · 실험 기록 Obsidian(`wiki/`).
+
+## 코드 표준
+> **정본: `docs/CONVENTIONS.md`**. 충돌 시 그 문서가 우선.
+- 요지: ruff(포맷+린트, line 100) · 타입 힌트 필수 · 파일/함수 snake_case, 클래스
+  PascalCase · 임베딩 공급자 호출부는 `providers/` 안에만 · 주석 한국어 허용,
+  식별자 영어 · 외부 API는 재시도(백오프)+캐시 재개.
+
+## 개발 명령
+- 의존성: `uv sync`
+- 테스트: `uv run pytest` (외부 API 없이 통과해야 함)
+- 품질: `uv run ruff check .` · `uv run ruff format --check .`
+- 실험: `uv run python scripts/run_experiment.py --help`
+- 환경: `.env`에 `GEMINI_API_KEY`·`OPENAI_API_KEY` 주입 (`.env.example` 참고)
 
 ## 문서 지도 — 필요할 때만 읽기
 
 | 언제 | 무엇을 |
 |------|--------|
-| 세션 시작, 작업 착수 전 | `docs/PROGRESS.md` → 현재 phase 파일 (`docs/phases/`) |
-| 행동 규칙이 궁금할 때 | `docs/AGENT_GUIDE.md` |
+| 지금 어느 페이즈·태스크인지 | `docs/pipeline.md` (진행·태스크 단일 소스) |
+| 행동 규칙(골든 루프·브랜치·커밋·Jira) | `docs/AGENT_GUIDE.md` |
+| 코드 스타일·용어 규칙 | `docs/CONVENTIONS.md` |
 | 무엇을 만드는지 / 만들지 않는지 | `docs/SPEC.md` |
 | 스택·구조·실행 명령 | `docs/ARCHITECTURE.md` |
-| 코드 작성 전 (특히 실험 재현성 규칙) | `docs/CONVENTIONS.md` |
-| 초기화 당시 배경·Confluence 정본 링크 | `docs/BRIEF.md` |
-| 과거 실험 결과·모델 지식을 참고할 때 | `wiki/00-INDEX.md` (Obsidian 보관함) |
+| 과거 실험 결과·모델 지식 | `wiki/00-INDEX.md` (Obsidian 보관함) |
 | 스펙 밖 결정을 내렸을 때 | `docs/DECISIONS.md`에 한 줄 기록 |
-
-## 핵심 규칙 (항상 적용)
-
-- 사용자가 구체적 지시 없이 세션을 여는 말("일어나", "시작하자", "진행하자",
-  "뭐부터 할까" 등 의도 기준 — 대상·범위가 없으면 전부 해당)을 하면:
-  `docs/AGENT_GUIDE.md`의 "세션 시작 메뉴" 절차에 따라 `docs/PROGRESS.md`를
-  읽고 메뉴를 띄운다. 그 외 프로젝트 문서는 사용자가 선택한 뒤에만 로드한다.
-  이 말이 스킬 트리거(phase 실행 스킬 등)와 겹쳐 보여도 **이 규칙이 우선한다**
-  — phase 실행 스킬은 메뉴에서 개발 액션을 선택받았거나 "phase 2 이어서 해줘"
-  같은 구체적 지시가 있을 때만 호출한다. 끝내려는 말("오늘 그만", "정리하자" 등)을 하면
-  같은 문서의 "세션 마무리" 절차를 수행한다.
-- 작업은 골든 루프를 따른다: PROGRESS 읽기 → 현재 phase 하나만 수행 →
-  완료 조건 자가 점검 → PROGRESS 기록 → 정지. 상세는 `docs/AGENT_GUIDE.md`.
-- 한 번에 한 phase. 다음 phase를 이어서 진행하지 않는다.
-- phase 파일의 `변경 범위` 밖은 수정하지 않는다. SPEC의 제외 범위는 구현하지 않는다.
-- `docs/` 전체를 한꺼번에 읽지 않는다. 위 지도 기준으로 필요한 것만 읽는다.
-- 중요한 상태·결정은 대화에만 남기지 말고 해당 문서에 기록한다.
-- 실험을 돌렸으면 결과를 `results/` + `wiki/experiments/` 노트로 남긴다.
-  기록 규칙은 `docs/CONVENTIONS.md`의 "실험 기록 (LLM Wiki)" 절.

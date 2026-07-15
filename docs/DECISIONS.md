@@ -75,3 +75,11 @@
   비교(개발자 결정). 선행 작업: data/articles.json에 summary_detail 필드가
   없어(P02-T01 스냅샷 미포함), 같은 90건에 필드만 추가한 스냅샷이 필요
   (정답 라벨 그대로 유효, 트랙 A·B 공용). 이 전엔 "제목+짧은요약" 축만 실행 가능.
+- 2026-07-15 [meta] plick-ai 개발 컨벤션·구조 전면 이식 — agentic-starter 골든
+  루프(PROGRESS 단일 소스·phase-runner·main 직접 커밋)를 폐기하고 plick-ai 방식
+  채택: main←develop←`<type>/KAN-###-<slug>` 브랜치, 커밋 `<type>: 요약 (KAN-###)`
+  (한 태스크=한 커밋, Co-Authored-By 금지, 커밋 자동·푸시 승인), 진행 관리는
+  docs/pipeline.md(현황표+태스크+로그). CLAUDE·AGENT_GUIDE·CONVENTIONS 재작성,
+  pipeline.md 신설(현 상태 이관), PROGRESS는 포인터로 축소. Jira는 프로젝트 KAN,
+  임베딩 작업은 에픽 KAN-3 "[기능] AI 가공" 하위 작업 티켓. 사유: 팀 공용 규칙을
+  이 리포에도 일치시켜 티켓 단위로 관리·이식.
