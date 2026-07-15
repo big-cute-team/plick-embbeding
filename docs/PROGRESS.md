@@ -28,6 +28,15 @@ AWAITING REVIEW
 
 ## Working Notes
 
+- 2026-07-15 P03 검수 수정 반영 — 개발자가 라벨 원칙을 "같은 이슈 = 똑같은
+  사건, 본문으로 판정"으로 확정. 정답지 오류 1건 정정: 7358 "맨유, 두 미드필더
+  £85m 발표 임박"은 틸레망스 명시가 없어(오히려 £35m 단독 이적과 불일치)
+  tielemans_manutd→manutd_two_midfielders_85m 단독 이슈로 변경. 재채점(캐시,
+  API 없음): ARI 0.8569→0.9071, F1 0.8602→0.9091, 재현율 0.7921→0.8791
+  (FN 21→11, 틸레망스 허위 과분할 제거), 오병합 2건 유지·과분할 7→6.
+  기준선 폴더 results/20260715_093510/. 검토에서 확인된 것: 데리(첼시 계약 vs
+  스포르팅 임대) 이미 분리 정답, 홀란 3건(소감/교체/응원) 분리 정답 —
+  오병합으로 정상 포착. 테스트 20개·ruff 통과.
 - 2026-07-14 Phase 03 완료 (검토 대기). 만든 것: eval/labels.py(정답 로더
   {기사id:이슈id}+미라벨 경고), data/labels/articles90.json(90건→이슈 55개
   정답 초안, 다건 15·단건 40), eval/scoring.py(ARI·쌍 정밀도/재현율/F1·
@@ -101,4 +110,4 @@ none
 
 - [ ] `uv run python scripts/run_experiment.py --model gemini --task-type SEMANTIC_SIMILARITY --dim 768 --threshold 0.85 --window 24h --labels data/labels/articles90.json` 실행 후 report에서 ARI·F1 점수 확인
 - [ ] 오병합 사례 목록에 Phase 02 눈 검증에서 발견한 사례(홀란·이라올라)가 있는지 확인
-- [ ] 라벨 초안 검수: `data/labels/articles90.json`을 열어 이슈 배정이 맞는지 확인 (특히 7358·7092·데리·홀란 미세뉴스 — Working Notes 참조)
+- [ ] 라벨 검수(1차 반영됨): 7358·데리·홀란은 검토 완료. 남은 확인 — 라벨을 "24h 윈도우 무관 실제 사건" 기준으로 부여해 다일 사가(에데르송 등)가 과분할로 잡히는 설계가 맞는지(DECISIONS 참조), 그 외 이슈 배정 이상 여부
