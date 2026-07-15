@@ -7,7 +7,7 @@
 
 import argparse
 import sys
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from plick_embedding.eval.labels import load_labels
@@ -17,7 +17,8 @@ from plick_embedding.pipeline.clustering import cluster_embeddings
 from plick_embedding.pipeline.window import split_clusters_by_window
 from plick_embedding.providers.base import EmbeddingConfig
 from plick_embedding.providers.gemini import GeminiEmbeddingProvider
-from plick_embedding.report.report import ExperimentConfig, write_report
+from plick_embedding.report.report import ExperimentConfig, build_clusters, write_report
+from plick_embedding.report.wiki import write_wiki_note
 from plick_embedding.settings import PROJECT_ROOT, load_settings
 
 MODEL_NAMES = {"gemini": "gemini-embedding-001"}
@@ -136,8 +137,14 @@ def main() -> None:
         input_path=str(args.input),
         n_articles=len(articles),
     )
-    run_dir = write_report(config, articles, labels, score=score)
+    run_at = datetime.now()
+    run_dir = write_report(config, articles, labels, score=score, run_at=run_at)
     print(f"결과 저장: {run_dir}")
+
+    clusters = build_clusters(articles, labels)
+    note_path = write_wiki_note(config, clusters, run_at, score=score, run_dir=run_dir)
+    print(f"위키 노트: {note_path}")
+
     print((run_dir / "report.md").read_text(encoding="utf-8").split("## 중복 묶음 상세")[0])
 
 

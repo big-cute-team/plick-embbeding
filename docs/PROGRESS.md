@@ -9,25 +9,36 @@
 
 ## Current Task
 
-P04-T01
+none (검토 대기)
 
 ## Status
 
-NOT STARTED
+AWAITING REVIEW
 
 ## Completed
 
 - [x] Phase 01 — 프로젝트 뼈대
 - [x] Phase 02 — PoC 이관 + 기준선 확립
 - [x] Phase 03 — 정답 라벨 + 정량 평가 러너 (검토 통과)
-- [ ] Phase 04 — LLM Wiki (Obsidian) 구축
+- [x] Phase 04 — LLM Wiki (Obsidian) 구축
 - [ ] Phase 05 — 모델별 task_type 실험 (2인 병렬: Gemini / OpenAI)
 - [ ] Phase 06 — 결과 종합 · 최적 구성 선정
 - [ ] Phase 07 — 증분 중복 묶기 + 예외 케이스
 - [ ] Phase 08 — 수집→임베딩→벡터 저장 파이프라인
 
-## Working Notes
-
+- 2026-07-15 Phase 04 완료 (검토 대기). 만든 것: wiki/00-INDEX.md(목차+현재
+  최적 구성+위키 작성 규칙), templates/experiment-note.md(노트 양식),
+  report/wiki.py(실험 실행 시 wiki/experiments/에 노트 자동 생성+목차 행
+  추가/교체, run_experiment.py 연동), 모델 노트 2(gemini·text-embedding-3)·
+  개념 노트 5(task_type·ARI·회색지대·최근 24시간만 비교·잘못 합침과 사가 분할),
+  과거 실험 4건 백필(Confluence 14843913에서: published56 SEMANTIC 26/15·
+  CLUSTERING 27/14, published34 각 14/8), tests/test_wiki.py 5개(깨진 링크·
+  목차 누락·자동 생성, 총 25개 API 없이 통과)·ruff 통과. 카파시 패턴 대조로
+  보강한 3가지(작성 규칙·노트 자급자족·자동 점검) 모두 반영. 기준선 노트
+  자동 생성 확인: 2026-07-15_articles90_SEMANTIC_0.85_24h(ARI 0.9071·F1 0.9091).
+  참고: 개발자는 Obsidian으로 wiki/ 열어 그래프·링크를 눈으로 확인 필요.
+- 2026-07-15 Phase 04 착수 — 계획: wiki/, 노트 양식, report/wiki.py 자동 생성,
+  모델·개념 노트, 과거 실험 4건 백필, 링크·목차 점검 테스트.
 - 2026-07-15 열린 항목 2개를 Phase 05로 이월(DECISIONS 기록) — (1) 이적 사가를
   소식 단위로 쪼갤지(개발자 잠정: 분리 쪽, 미확정), (2) 임베딩 입력 텍스트 구성을
   비교 축으로. article_summaries에 summary_detail(~148자, 현재 쓰는 summary_short의
@@ -47,7 +58,7 @@ NOT STARTED
   tielemans_manutd→manutd_two_midfielders_85m 단독 이슈로 변경. 재채점(캐시,
   API 없음): ARI 0.8569→0.9071, F1 0.8602→0.9091, 재현율 0.7921→0.8791
   (FN 21→11, 틸레망스 허위 잘못 나뉨 제거), 잘못 합침 2건 유지·잘못 나뉨 7→6.
-  기준선 폴더 results/20260715_094459/. 검토에서 확인된 것: 데리(첼시 계약 vs
+  기준선 폴더 results/20260715_102026/. 검토에서 확인된 것: 데리(첼시 계약 vs
   스포르팅 임대) 이미 분리 정답, 홀란 3건(소감/교체/응원) 분리 정답 —
   잘못 합침으로 정상 포착. 테스트 20개·ruff 통과.
 - 2026-07-14 Phase 03 완료 (검토 대기). 만든 것: eval/labels.py(정답 로더
@@ -121,4 +132,6 @@ none
 
 ## Developer Test
 
-none
+- [ ] Obsidian으로 `wiki/` 열어 그래프 뷰·링크 동작 확인
+- [ ] `uv run python scripts/run_experiment.py --labels data/labels/articles90.json` 실행 후 `wiki/experiments/`에 새 노트와 INDEX 갱신 확인
+- [ ] 팀원(2인) 모두 보관함을 열어 같은 내용이 보이는지 확인 (git pull 기준)
