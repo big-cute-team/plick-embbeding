@@ -23,3 +23,7 @@ data/raw/
 
 # Obsidian 개인 설정 (노트는 커밋, 워크스페이스 상태는 제외)
 wiki/.obsidian/
+
+# Obsidian 개인 창 배치 (팀원별로 달라 충돌 유발)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
