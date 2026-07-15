@@ -5,21 +5,21 @@
 
 ## Current Phase
 
-03 — 정답 라벨 + 정량 평가 러너 (`docs/phases/03-eval-harness.md`)
+04 — LLM Wiki (Obsidian) 구축 (`docs/phases/04-llm-wiki.md`)
 
 ## Current Task
 
-none (검토 대기)
+P04-T01
 
 ## Status
 
-AWAITING REVIEW
+NOT STARTED
 
 ## Completed
 
 - [x] Phase 01 — 프로젝트 뼈대
 - [x] Phase 02 — PoC 이관 + 기준선 확립
-- [x] Phase 03 — 정답 라벨 + 정량 평가 러너
+- [x] Phase 03 — 정답 라벨 + 정량 평가 러너 (검토 통과)
 - [ ] Phase 04 — LLM Wiki (Obsidian) 구축
 - [ ] Phase 05 — 모델별 task_type 실험 (2인 병렬: Gemini / OpenAI)
 - [ ] Phase 06 — 결과 종합 · 최적 구성 선정
@@ -121,6 +121,4 @@ none
 
 ## Developer Test
 
-- [ ] `uv run python scripts/run_experiment.py --model gemini --task-type SEMANTIC_SIMILARITY --dim 768 --threshold 0.85 --window 24h --labels data/labels/articles90.json` 실행 후 report에서 ARI·F1 점수 확인
-- [ ] 잘못 합침 사례 목록에 Phase 02 눈 검증에서 발견한 사례(홀란·이라올라)가 있는지 확인
-- [ ] 라벨 검수(1차 반영됨): 7358·데리·홀란은 검토 완료. 남은 확인 — 라벨을 "최근 24시간만 비교 무관 실제 사건" 기준으로 부여해 다일 사가(에데르송 등)가 잘못 나뉨으로 잡히는 설계가 맞는지(DECISIONS 참조), 그 외 이슈 배정 이상 여부
+none
