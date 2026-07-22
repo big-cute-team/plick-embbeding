@@ -30,6 +30,8 @@ class ExperimentConfig:
     input_path: str
     n_articles: int
     input_text: str = "title_short"  # 임베딩 입력 구성 (title / title_short)
+    mode: str = "batch"  # 묶는 방식 (batch=한꺼번에 / incremental=하나씩)
+    representative: str = ""  # 하나씩 묶기의 묶음 대표값 (centroid / latest / seed)
 
 
 def build_clusters(articles: list[Article], labels: np.ndarray) -> list[list[Article]]:
