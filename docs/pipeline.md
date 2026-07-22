@@ -68,6 +68,11 @@
 ---
 
 ## 로그 (최신 위)
+- **T09 후속 — task_type 3종 추가(2026-07-22, KAN-272)**: 우리 문제와 맞는 나머지
+  타입을 768·짧은요약 축에서 스윕 — FACT_VERIFICATION 0.8887 @0.77 ·
+  CLASSIFICATION 0.8810 @0.90 · RETRIEVAL_DOCUMENT 0.8524 @0.88. 전부 SEMANTIC
+  (0.9287)보다 낮음 → **task_type 5종 비교에서 SEMANTIC_SIMILARITY 확정 우위**.
+  비대칭 검색용 3종(RETRIEVAL_QUERY 등)은 용도가 달라 제외.
 - **T09 완료(2026-07-22, KAN-272)**: Gemini 8세트(task_type 2×차원 2×입력 2) 기준값
   0.01 스윕. 기준선 재측정 — 0.86에서 ARI 0.9287(기존 0.85/0.9071은 과소평가).
   최고 **SEMANTIC·768·짧은요약 @0.86 0.9287**. SEMANTIC이 CLUSTERING보다 항상 높고
