@@ -1,0 +1,452 @@
+{
+  "6882": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "quenda"
+  },
+  "6884": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "guimaraes"
+  },
+  "6886": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "greenwood"
+  },
+  "6887": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "palhinha"
+  },
+  "6890": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "deri"
+  },
+  "6891": {
+    "category": "OTHER",
+    "subject_type": "manager",
+    "subject_name": "maresca"
+  },
+  "6894": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "santos"
+  },
+  "6895": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "guimaraes"
+  },
+  "6896": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "tchouameni"
+  },
+  "6898": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "ederson"
+  },
+  "6899": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "guimaraes"
+  },
+  "6913": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "santos"
+  },
+  "6922": {
+    "category": "OTHER",
+    "subject_type": "player",
+    "subject_name": "guehi"
+  },
+  "6925": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "guimaraes"
+  },
+  "6927": {
+    "category": "OTHER",
+    "subject_type": "manager",
+    "subject_name": "amorim"
+  },
+  "6928": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "santos"
+  },
+  "6943": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "guimaraes"
+  },
+  "6945": {
+    "category": "OTHER",
+    "subject_type": "player",
+    "subject_name": "merino"
+  },
+  "6949": {
+    "category": "OTHER",
+    "subject_type": "manager",
+    "subject_name": "alonso"
+  },
+  "6970": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "meslier"
+  },
+  "6971": {
+    "category": "OTHER",
+    "subject_type": "player",
+    "subject_name": "haaland"
+  },
+  "6977": {
+    "category": "OTHER",
+    "subject_type": "player",
+    "subject_name": "stones"
+  },
+  "6992": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "dalot"
+  },
+  "6993": {
+    "category": "OTHER",
+    "subject_type": "manager",
+    "subject_name": "alonso"
+  },
+  "6998": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "santos"
+  },
+  "6999": {
+    "category": "OTHER",
+    "subject_type": "player",
+    "subject_name": "mbappe"
+  },
+  "7016": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "romero"
+  },
+  "7018": {
+    "category": "OTHER",
+    "subject_type": "manager",
+    "subject_name": "alonso"
+  },
+  "7024": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "dalot"
+  },
+  "7026": {
+    "category": "MATCH",
+    "subject_type": "player",
+    "subject_name": "haaland"
+  },
+  "7037": {
+    "category": "MATCH",
+    "subject_type": "manager",
+    "subject_name": "tuchel"
+  },
+  "7038": {
+    "category": "FITNESS",
+    "subject_type": "player",
+    "subject_name": "guehi"
+  },
+  "7047": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "charles"
+  },
+  "7055": {
+    "category": "OTHER",
+    "subject_type": "player",
+    "subject_name": "maguire"
+  },
+  "7057": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "charles"
+  },
+  "7060": {
+    "category": "OTHER",
+    "subject_type": "player",
+    "subject_name": "vandijk"
+  },
+  "7064": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "santos"
+  },
+  "7069": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "santos"
+  },
+  "7077": {
+    "category": "MATCH",
+    "subject_type": "player",
+    "subject_name": "merino"
+  },
+  "7092": {
+    "category": "TRANSFER",
+    "subject_type": "club",
+    "subject_name": "manutd_midfielders"
+  },
+  "7093": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "tzolis"
+  },
+  "7096": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "ederson"
+  },
+  "7105": {
+    "category": "FITNESS",
+    "subject_type": "player",
+    "subject_name": "courtois"
+  },
+  "7107": {
+    "category": "MATCH",
+    "subject_type": "player",
+    "subject_name": "merino"
+  },
+  "7108": {
+    "category": "MATCH",
+    "subject_type": "player",
+    "subject_name": "merino"
+  },
+  "7110": {
+    "category": "MATCH",
+    "subject_type": "player",
+    "subject_name": "guehi"
+  },
+  "7111": {
+    "category": "OTHER",
+    "subject_type": "player",
+    "subject_name": "guehi"
+  },
+  "7121": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "nypan"
+  },
+  "7123": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "garnacho"
+  },
+  "7124": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "salah"
+  },
+  "7126": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "nypan"
+  },
+  "7131": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "monga"
+  },
+  "7155": {
+    "category": "MATCH",
+    "subject_type": "player",
+    "subject_name": "konsa"
+  },
+  "7166": {
+    "category": "OTHER",
+    "subject_type": "manager",
+    "subject_name": "iraola"
+  },
+  "7169": {
+    "category": "OTHER",
+    "subject_type": "player",
+    "subject_name": "haaland"
+  },
+  "7180": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "deri"
+  },
+  "7197": {
+    "category": "OTHER",
+    "subject_type": "player",
+    "subject_name": "mainoo"
+  },
+  "7213": {
+    "category": "OTHER",
+    "subject_type": "player",
+    "subject_name": "haaland"
+  },
+  "7216": {
+    "category": "MATCH",
+    "subject_type": "player",
+    "subject_name": "haaland"
+  },
+  "7223": {
+    "category": "OTHER",
+    "subject_type": "player",
+    "subject_name": "haaland"
+  },
+  "7225": {
+    "category": "MATCH",
+    "subject_type": "player",
+    "subject_name": "spence"
+  },
+  "7227": {
+    "category": "MATCH",
+    "subject_type": "player",
+    "subject_name": "haaland"
+  },
+  "7229": {
+    "category": "FITNESS",
+    "subject_type": "player",
+    "subject_name": "stones"
+  },
+  "7230": {
+    "category": "MATCH",
+    "subject_type": "player",
+    "subject_name": "spence"
+  },
+  "7231": {
+    "category": "MATCH",
+    "subject_type": "player",
+    "subject_name": "haaland"
+  },
+  "7232": {
+    "category": "MATCH",
+    "subject_type": "player",
+    "subject_name": "selderup"
+  },
+  "7239": {
+    "category": "MATCH",
+    "subject_type": "player",
+    "subject_name": "macallister"
+  },
+  "7246": {
+    "category": "OTHER",
+    "subject_type": "player",
+    "subject_name": "haaland"
+  },
+  "7264": {
+    "category": "OTHER",
+    "subject_type": "player",
+    "subject_name": "haaland"
+  },
+  "7317": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "greenwood"
+  },
+  "7328": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "trossard"
+  },
+  "7342": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "konate"
+  },
+  "7343": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "tielemans"
+  },
+  "7344": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "tielemans"
+  },
+  "7345": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "tielemans"
+  },
+  "7346": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "ederson"
+  },
+  "7347": {
+    "category": "OTHER",
+    "subject_type": "manager",
+    "subject_name": "iraola"
+  },
+  "7349": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "tielemans"
+  },
+  "7350": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "tielemans"
+  },
+  "7351": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "tielemans"
+  },
+  "7352": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "tielemans"
+  },
+  "7353": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "tielemans"
+  },
+  "7354": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "tielemans"
+  },
+  "7357": {
+    "category": "OTHER",
+    "subject_type": "manager",
+    "subject_name": "iraola"
+  },
+  "7358": {
+    "category": "TRANSFER",
+    "subject_type": "club",
+    "subject_name": "manutd_midfielders"
+  },
+  "7359": {
+    "category": "OTHER",
+    "subject_type": "manager",
+    "subject_name": "iraola"
+  },
+  "7361": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "chavarria"
+  },
+  "7362": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "tielemans"
+  },
+  "7364": {
+    "category": "TRANSFER",
+    "subject_type": "player",
+    "subject_name": "ederson"
+  },
+  "7365": {
+    "category": "OTHER",
+    "subject_type": "manager",
+    "subject_name": "iraola"
+  }
+}
