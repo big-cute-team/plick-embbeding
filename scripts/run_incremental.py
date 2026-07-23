@@ -59,8 +59,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--representative",
         choices=REPRESENTATIVES,
-        default="centroid",
-        help="묶음 대표값 (centroid=평균 / latest=최신 기사 / seed=첫 기사, 기본: centroid)",
+        default="seed",
+        help="묶음 대표값 (seed=첫 기사 / centroid=평균 / latest=최신 기사, 기본: seed) "
+        "— KAN-287에서 첫 기사가 ARI 최고",
     )
     parser.add_argument(
         "--input",
