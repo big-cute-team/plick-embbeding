@@ -52,6 +52,15 @@ def _input_tag(input_text: str) -> str:
     return "" if input_text == "title_short" else input_text
 
 
+def _mode_tag(config: ExperimentConfig) -> str:
+    """처리 방식 토큰 — 배치는 빈 문자열이라 기존 노트 이름을 유지하고, 순차(하나씩)만
+    'online-<대표값>'이 붙어 같은 구성의 배치·순차 노트가 서로 안 덮어쓴다."""
+    if config.mode != "incremental":
+        return ""
+    rep = config.representative or "centroid"
+    return f"online-{rep}"
+
+
 def _dataset_slug(config: ExperimentConfig) -> str:
     """입력 파일명 + 건수 → 예: articles90."""
     stem = Path(config.input_path).stem
@@ -66,9 +75,12 @@ def note_stem(config: ExperimentConfig, run_at: datetime) -> str:
     """
     window = int(config.window_hours) if config.window_hours.is_integer() else config.window_hours
     input_tag = _input_tag(config.input_text)
+    mode_tag = _mode_tag(config)
     parts = [f"{run_at:%Y-%m-%d}", _dataset_slug(config)]
     if input_tag:
         parts.append(input_tag)
+    if mode_tag:
+        parts.append(mode_tag)
     parts.append(f"{_model_tag(config.model)}-d{config.dim}")
     parts.append(f"{_task_label(config.task_type)}_{config.threshold}_{window}h")
     return "_".join(parts)
