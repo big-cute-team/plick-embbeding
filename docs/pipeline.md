@@ -21,7 +21,7 @@
 | 05 | 모델별 실험 (2인 병렬: Gemini/OpenAI) | B: KAN-182~186 · A: KAN-272~274 | ✅ done | B: 4/4 · A: 3/3 |
 | 06 | 결과 종합 · 최적 구성 선정 | KAN-278·279 (KAN-3 하위) | ✅ done | 2/2 |
 | 07 | 증분 중복 묶기 + 예외 케이스 | KAN-280·285·287·288·289 (T01~T05, KAN-3 하위) | ✅ done | 5/5 |
-| 08 | 수집→임베딩→벡터 저장 파이프라인 | KAN-290~ (T01~, KAN-3 하위) | ▶ current | 4/5 |
+| 08 | 수집→임베딩→벡터 저장 파이프라인 | KAN-290~295 (T01~T05, KAN-3 하위) | ✅ done | 5/5 |
 
 > **컨벤션 이식(2026-07-15)**: agentic-starter 골든 루프 → plick-ai 방식(develop
 > 브랜치 모델 + KAN 티켓 + pipeline.md)으로 전환. Phase 01~04는 이식 전에 완료돼
@@ -118,11 +118,22 @@
 - [x] **T04** (KAN-294) 오류 재시도·중복 방지 — ✔ 재시도(공급자 백오프) 동작 테스트(몇 번
   실패 후 성공·정해진 횟수 넘기면 오류), 끊긴 뒤 재개 시 중복 없이 이어감 테스트, 저장소
   **원자적 쓰기**(임시 파일+바꿔치기)로 쓰다 끊겨도 이전 저장 온전. 테스트 5개 추가(전체 71개 초록).
-- [ ] **T05** (미발행) plick-ai 이식 가이드 — 확정 구성·모듈 경계·인터페이스 계약 초안
+- [x] **T05** (KAN-295) plick-ai 이식 가이드 — ✔ `docs/PORTING_GUIDE.md`: 확정 구성표·
+  모듈 경계(그대로 옮김/갈아끼움/안 옮김)·인터페이스 계약 초안(Store·Provider·순차 묶기·
+  gray zone)·운영 실시간 흐름·미결정 항목(주체 연결·벡터DB 도입 시점). 참조 문서 존재 확인.
 
 ---
 
 ## 로그 (최신 위)
+- **P08-T05 완료 · Phase 08 종료 · 전체 8개 페이즈 완료(2026-07-23, KAN-295)**: plick-ai
+  이식 가이드 `docs/PORTING_GUIDE.md`. 확정 구성표(Gemini SEMANTIC·768·짧은요약·0.86·24h·
+  순차 seed + 애매구간 LLM, 순차 최고 ARI 0.9149·잘못 합침 0), 모듈 경계(그대로 옮김:
+  providers·incremental·gray_zone / 갈아끼움: 저장소 로컬파일→Postgres+벡터DB, 소스·CLI /
+  안 옮김: eval·report·sweep), 인터페이스 계약 초안(Store put/known_ids/active_since/set_issues·
+  Provider embed·cluster_incrementally·gray zone), 운영 실시간 흐름, 미결정(주체 연결 KAN-275·
+  벡터DB 도입 시점·저장소 구현체·노이즈 게이트). 참조 문서 존재 확인. **Phase 08의 T01~T05
+  전부 done → 현황표 ✅. Phase 01~08 전부 완료.** DoD: ruff clean·pytest 71개 초록. 실제 이식은
+  plick-ai 리포에서. 브랜치 `feat/KAN-290-vector-store`. (푸시·develop PR·티켓 완료 처리는 개발자 지시 대기.)
 - **P08-T04 완료(2026-07-23, KAN-294)**: 오류 재시도·중복 방지. 재시도는 공급자에 이미 있어
   (지수 백오프) **동작을 테스트로 확인** — 가짜 Gemini 클라이언트가 몇 번 실패 후 성공하면 벡터
   반환(딱 MAX_RETRIES회), 계속 실패하면 "재시도 실패" 오류(기다림은 monkeypatch로 건너뜀).
