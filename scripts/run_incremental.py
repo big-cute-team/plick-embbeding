@@ -5,7 +5,7 @@
 
 예: uv run python scripts/run_incremental.py \\
         --model gemini --task-type SEMANTIC_SIMILARITY \\
-        --dim 768 --threshold 0.86 --window 24h --representative centroid \\
+        --dim 768 --threshold 0.86 --window 24h --representative seed \\
         --labels data/labels/articles90.json
 """
 
