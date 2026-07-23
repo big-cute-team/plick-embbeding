@@ -77,6 +77,22 @@ def test_note_stem_input_text_tag() -> None:
     )
 
 
+def test_note_stem_mode_tag() -> None:
+    """배치는 이름 그대로, 순차(하나씩)만 'online-<대표값>'이 붙어 안 겹친다."""
+    from dataclasses import replace
+
+    base = _sample_config()
+    at = datetime(2026, 7, 15, 10, 0)
+    batch = note_stem(base, at)  # mode 기본 'batch'
+    online = note_stem(replace(base, mode="incremental", representative="centroid"), at)
+    latest = note_stem(replace(base, mode="incremental", representative="latest"), at)
+
+    assert batch == "2026-07-15_articles90_gemini-d768_SEMANTIC_0.85_24h"  # 기존 이름 유지
+    assert online == "2026-07-15_articles90_online-centroid_gemini-d768_SEMANTIC_0.85_24h"
+    # 배치·순차·대표값별로 모두 다른 이름 → 서로 안 덮어쓴다
+    assert len({batch, online, latest}) == 3
+
+
 def test_write_wiki_note_creates_note_and_index_row(tmp_path) -> None:
     wiki = tmp_path / "wiki"
     (wiki / "experiments").mkdir(parents=True)
