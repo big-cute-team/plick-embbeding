@@ -90,6 +90,40 @@ def test_deterministic_same_input_same_labels():
     assert np.array_equal(a, b)
 
 
+def test_extended_window_keeps_established_saga_together():
+    """글 2개 이상 붙어 확인된 묶음은 더 긴 수명으로 이어진다 (수명 연장)."""
+    emb = np.vstack([unit(1, 0), unit(1, 0), unit(1, 0)])
+    times = [at(0), at(10), at(40)]  # 0·10h는 24h 안, 세 번째는 마지막 갱신 뒤 30h
+    # 연장 없으면: 세 번째(40h)는 마지막 갱신(10h) 뒤 30h > 24h라 갈린다
+    plain = cluster_incrementally(emb, times, threshold=0.86, window=WINDOW)
+    assert plain[2] != plain[0]
+    # 연장 있으면: 묶음이 2건이라 48h 수명 → 30h는 안에 들어와 이어진다
+    ext = cluster_incrementally(
+        emb,
+        times,
+        threshold=0.86,
+        window=WINDOW,
+        extended_window=timedelta(hours=48),
+        extend_after=2,
+    )
+    assert ext[0] == ext[1] == ext[2]
+
+
+def test_extended_window_does_not_help_lone_cluster():
+    """한 번짜리 묶음은 연장 대상이 아니다 — 첫 간격이 크면 그대로 갈린다."""
+    emb = np.vstack([unit(1, 0), unit(1, 0)])
+    times = [at(0), at(40)]  # 묶음이 1건일 때 40h 간격
+    ext = cluster_incrementally(
+        emb,
+        times,
+        threshold=0.86,
+        window=WINDOW,
+        extended_window=timedelta(hours=48),
+        extend_after=2,
+    )
+    assert ext[0] != ext[1]  # 아직 1건이라 24h 적용 → 갈림
+
+
 def test_empty_input():
     labels = cluster_incrementally(np.empty((0, 2)), [], threshold=0.86, window=WINDOW)
     assert labels.shape == (0,)

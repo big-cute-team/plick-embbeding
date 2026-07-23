@@ -53,12 +53,18 @@ def cluster_incrementally(
     threshold: float,
     window: timedelta,
     representative: str = "centroid",
+    extended_window: timedelta | None = None,
+    extend_after: int = 2,
 ) -> np.ndarray:
     """(N, dim) 벡터를 발행 시각 순으로 하나씩 묶어 라벨 (N,)을 반환한다.
 
     embeddings는 L2 정규화돼 있다고 본다(공급자 규약). threshold는 코사인
     "유사도" 기준(예: 0.86), window는 살아 있는 묶음으로 볼 시간 범위.
     라벨은 입력과 같은 순서로 반환한다.
+
+    수명 연장(KAN-289): ``extended_window``를 주면, 기사가 ``extend_after``건 이상
+    붙어 "이어지는 사건"으로 확인된 묶음만 그 더 긴 범위로 살려 둔다(한 번짜리 묶음은
+    ``window`` 그대로). None이면 모든 묶음이 ``window`` — 기존 동작과 같다.
     """
     if representative not in REPRESENTATIVES:
         raise ValueError(f"모르는 대표값: {representative!r} (가능: {REPRESENTATIVES})")
@@ -80,8 +86,12 @@ def cluster_incrementally(
         best: _Cluster | None = None
         best_sim = -1.0
         for cluster in clusters:
-            if when - cluster.updated > window:
-                continue  # 24시간 넘게 잠잠한 묶음은 후보에서 뺀다
+            # 이어지는 사건으로 확인된(글 여러 개) 묶음만 더 긴 수명을 준다.
+            alive = window
+            if extended_window is not None and cluster._count >= extend_after:
+                alive = extended_window
+            if when - cluster.updated > alive:
+                continue  # 그 범위 넘게 잠잠한 묶음은 후보에서 뺀다
             sim = float(np.dot(vec, cluster.rep))
             if sim > best_sim:
                 best, best_sim = cluster, sim
