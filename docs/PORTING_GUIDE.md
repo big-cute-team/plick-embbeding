@@ -59,7 +59,7 @@ seed 0.8636 → **애매한 구간 LLM 판정을 얹어 0.9149(잘못 합침 0)*
 ### 3.1 저장소(Store) — 이식 시 벡터DB 어댑터로 교체할 경계
 
 ```
-put(records)              # 기사 벡터 + 메타 저장 (이미 있는 id는 무시)
+add(records)              # 기사 벡터 + 메타 저장 (이미 있는 id는 무시)
 known_ids() -> set        # 이미 처리한 기사 id (건너뛰기용)
 active_since(cursor)      # 최근 N시간 안 살아 있는 이슈의 대표 벡터 조회 (운영 추가)
 set_issues(id -> issue)   # 묶기 결과(어느 이슈인지) 기록
