@@ -21,7 +21,7 @@
 | 05 | 모델별 실험 (2인 병렬: Gemini/OpenAI) | B: KAN-182~186 · A: KAN-272~274 | ✅ done | B: 4/4 · A: 3/3 |
 | 06 | 결과 종합 · 최적 구성 선정 | KAN-278·279 (KAN-3 하위) | ✅ done | 2/2 |
 | 07 | 증분 중복 묶기 + 예외 케이스 | KAN-280·285·287·288·289 (T01~T05, KAN-3 하위) | ✅ done | 5/5 |
-| 08 | 수집→임베딩→벡터 저장 파이프라인 | 미발행 | ▶ current | — |
+| 08 | 수집→임베딩→벡터 저장 파이프라인 | KAN-290~295 (T01~T05, KAN-3 하위) | ✅ done | 5/5 |
 
 > **컨벤션 이식(2026-07-15)**: agentic-starter 골든 루프 → plick-ai 방식(develop
 > 브랜치 모델 + KAN 티켓 + pipeline.md)으로 전환. Phase 01~04는 이식 전에 완료돼
@@ -97,7 +97,76 @@
 
 ---
 
+## 08 — 수집→임베딩→벡터 저장 파이프라인
+**목표**: 선정 구성(Gemini SEMANTIC·768·짧은요약·기준값 0.86)으로 기사를 로드→임베딩→
+벡터 저장→증분 묶기까지 반복 실행 가능한 배치 파이프라인. plick-ai 이식 기준 문서화.
+**상세**: [phases/08-ingest-pipeline.md](phases/08-ingest-pipeline.md) · 티켓: 에픽 KAN-3 하위
+
+- [x] **T01** (KAN-290) 벡터 저장 방법 결정 — ✔ DECISIONS 기록: 이 리포는 **로컬 파일
+  저장소**로 묶기 검증, 운영은 **Postgres(메타)+전용 벡터DB(벡터) 분리·벡터DB는 plick-ai
+  이식 때 연결**. 묶기엔 ANN 안 켜짐(24h 후보 작음)→파일로 충분, 추천·검색 붙을 때 벡터DB.
+  운영 저장소 MySQL→Postgres 변경. 저장 메타 model·task_type·dim·normalized, Store 인터페이스 경계.
+- [x] **T02** (KAN-292) 기사 불러오기 — ✔ `pipeline/source.py`(`fetch_new_articles`):
+  Supabase(읽기 전용)에서 커서(published_at) 이후 발행된 PUBLISHED 기사만 Article로 반환.
+  같은 시각·이전은 제외(gt + 클라이언트 재확인), 발행순 정렬. HTTP는 콜러블 주입으로 모킹,
+  결정적 테스트 6개(전체 60개 초록). id 기준 건너뛰기는 저장소 몫(T03).
+- [x] **T03** (KAN-293) 전체 배치 파이프라인 — ✔ `pipeline/store.py`(로컬 파일 저장소)·
+  `pipeline/batch.py`(`run_pipeline`)·`scripts/run_pipeline.py`. 로드→임베딩(캐시)→벡터 저장
+  (model·task_type·dim·normalized 메타 함께)→발행순 재군집→issue_id 적기. 저장소에 있는 id는
+  다시 안 부름·안 만듦. 실제 90건 2회 연속: 1회차 90건→60이슈, 2회차 **신규 0건**(멱등, 결과
+  동일). stub provider·저장소 라운드트립·멱등 테스트 7개(전체 67개 초록). `.store/` gitignore.
+- [x] **T04** (KAN-294) 오류 재시도·중복 방지 — ✔ 재시도(공급자 백오프) 동작 테스트(몇 번
+  실패 후 성공·정해진 횟수 넘기면 오류), 끊긴 뒤 재개 시 중복 없이 이어감 테스트, 저장소
+  **원자적 쓰기**(임시 파일+바꿔치기)로 쓰다 끊겨도 이전 저장 온전. 테스트 5개 추가(전체 71개 초록).
+- [x] **T05** (KAN-295) plick-ai 이식 가이드 — ✔ `docs/PORTING_GUIDE.md`: 확정 구성표·
+  모듈 경계(그대로 옮김/갈아끼움/안 옮김)·인터페이스 계약 초안(Store·Provider·순차 묶기·
+  gray zone)·운영 실시간 흐름·미결정 항목(주체 연결·벡터DB 도입 시점). 참조 문서 존재 확인.
+
+---
+
 ## 로그 (최신 위)
+- **P08-T05 완료 · Phase 08 종료 · 전체 8개 페이즈 완료(2026-07-23, KAN-295)**: plick-ai
+  이식 가이드 `docs/PORTING_GUIDE.md`. 확정 구성표(Gemini SEMANTIC·768·짧은요약·0.86·24h·
+  순차 seed + 애매구간 LLM, 순차 최고 ARI 0.9149·잘못 합침 0), 모듈 경계(그대로 옮김:
+  providers·incremental·gray_zone / 갈아끼움: 저장소 로컬파일→Postgres+벡터DB, 소스·CLI /
+  안 옮김: eval·report·sweep), 인터페이스 계약 초안(Store put/known_ids/active_since/set_issues·
+  Provider embed·cluster_incrementally·gray zone), 운영 실시간 흐름, 미결정(주체 연결 KAN-275·
+  벡터DB 도입 시점·저장소 구현체·노이즈 게이트). 참조 문서 존재 확인. **Phase 08의 T01~T05
+  전부 done → 현황표 ✅. Phase 01~08 전부 완료.** DoD: ruff clean·pytest 71개 초록. 실제 이식은
+  plick-ai 리포에서. 브랜치 `feat/KAN-290-vector-store`. (푸시·develop PR·티켓 완료 처리는 개발자 지시 대기.)
+- **P08-T04 완료(2026-07-23, KAN-294)**: 오류 재시도·중복 방지. 재시도는 공급자에 이미 있어
+  (지수 백오프) **동작을 테스트로 확인** — 가짜 Gemini 클라이언트가 몇 번 실패 후 성공하면 벡터
+  반환(딱 MAX_RETRIES회), 계속 실패하면 "재시도 실패" 오류(기다림은 monkeypatch로 건너뜀).
+  **끊긴 뒤 재개**: 임베딩 도중 터지는 provider로 돌리면 저장소에 반쪽 저장이 안 남고, 다시
+  돌리면 중복 없이 각 기사 딱 한 번 임베딩해 끝냄. **저장소 원자적 쓰기**: `_save`를 임시 파일에
+  쓰고 `os.replace`로 바꿔치기 — 바꿔치기가 도중 실패해도(테스트에서 replace 강제 오류) 이전
+  저장 파일 온전. 실제 90건 2회 CLI 회귀 정상(멱등·tmp 안 남음). 테스트 5개(전체 71개 초록).
+  브랜치 `feat/KAN-290-vector-store`.
+- **P08-T03 완료(2026-07-23, KAN-293)**: 전체 처리 흐름 잇기 `pipeline/store.py`(로컬 파일
+  벡터 저장소)·`pipeline/batch.py`(`run_pipeline`)·`scripts/run_pipeline.py`. 가져오기→임베딩
+  (캐시)→저장→발행 시각 순 재군집(`cluster_incrementally`)→issue_id 적기까지 한 줄. 저장소에
+  이미 있는 id는 다시 가져오지도 임베딩하지도 않음(이중 안전장치+캐시). 저장 레코드 한 줄에
+  벡터 + model·task_type·dim·normalized + published_at + issue_id 함께. 묶기는 **방식 A(매번
+  전부 재군집)** — 발행순 1건씩이라 재생해도 같은 결과, 두 번 돌려도 같음. 실제 90건 2회 연속
+  검증: 1회차 90건→60이슈, **2회차 신규 0건**(멱등)·60이슈 동일, 전부 캐시라 API 0. 테스트
+  7개(stub provider 임베딩 0회 재호출·저장소 라운드트립·이어처리, 전체 67개 초록). `.store/`
+  gitignore(운영 상태). 저장소 경계(넣기/전체읽기/id확인/이슈적기)는 이식 때 벡터DB 어댑터로
+  교체. 브랜치 `feat/KAN-290-vector-store`.
+- **P08-T02 완료(2026-07-23, KAN-292)**: 기사 증분 불러오기 `pipeline/source.py`
+  (`fetch_new_articles`). Supabase article_summaries(읽기 전용)에서 **커서(published_at)
+  이후 발행된 PUBLISHED 기사만** Article로 반환 — 같은 시각·이전은 제외(서버 gt + 클라이언트
+  `> since` 재확인), 발행 시각 순 정렬. HTTP 호출을 콜러블(`fetch=`)로 주입해 외부 API 없이
+  응답 모킹, 결정적 테스트 6개(커서 이후만·경계 제외·정렬·매핑·질의 gt·인증 헤더, 전체 60개
+  초록). 접속은 `.env.local` SUPABASE_URL/SERVICE_ROLE_KEY 재사용. **이미 처리한 id 건너뛰기는
+  저장소 몫(T03)** — 이 태스크는 "커서 이후 새 기사만"까지. 브랜치 `feat/KAN-290-vector-store`.
+- **P08-T01 완료(2026-07-23, KAN-290)**: 벡터 저장 방법 결정. **이 리포는 로컬 파일 저장소**로
+  묶기 파이프라인 검증(90~150건 인메모리라 충분·멱등·재개 쉬움), **운영은 Postgres(메타·관계)+
+  전용 벡터DB(벡터) 분리, 벡터DB 연결은 plick-ai 이식 시점**. 근거: 묶기는 최근 24h 후보
+  (카테고리·주체로 이미 작음)만 비교해 ANN(많은 벡터 중 비슷한 것 빠르게 찾기) 안 켜짐→파일·
+  브루트포스로 충분. 추천·숏폼·개인화(향후)는 전체 유사 검색이라 ANN 켜짐→그때 전용 벡터DB
+  (급하지 않으면 pgvector 한 곳으로 시작해 미뤄도 됨). 운영 저장소 MySQL→Postgres 변경(KAN-275
+  갱신). 저장 메타 model·task_type·dim·normalized, Store 인터페이스(넣기/최근N시간·필터 조회/
+  id 존재확인) 경계로 이식 때 벡터DB 어댑터 교체(구현 T03). 브랜치 `feat/KAN-290-vector-store`.
 - **P07-T05 완료 · Phase 07 종료(2026-07-23, KAN-289)**: 사가 대응 `scripts/sweep_saga.py`
   + `cluster_incrementally` 수명 연장 옵션(`extended_window`/`extend_after`) + 위키 `사가_대응_비교.md`.
   범위 늘리기(36/48/72h)·수명 연장(2건↑ 묶음만) 둘 다 채점 — **범위 늘리면 ARI 하락**

@@ -21,6 +21,9 @@ results/
 .cache/
 data/raw/
 
+# 벡터 저장소 (운영 상태·재실행 간 유지, 이식 전 로컬 검증용)
+.store/
+
 # Obsidian 개인 설정 (노트는 커밋, 워크스페이스 상태는 제외)
 wiki/.obsidian/
 
