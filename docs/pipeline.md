@@ -21,7 +21,7 @@
 | 05 | 모델별 실험 (2인 병렬: Gemini/OpenAI) | B: KAN-182~186 · A: KAN-272~274 | ✅ done | B: 4/4 · A: 3/3 |
 | 06 | 결과 종합 · 최적 구성 선정 | KAN-278·279 (KAN-3 하위) | ✅ done | 2/2 |
 | 07 | 증분 중복 묶기 + 예외 케이스 | KAN-280·285·287·288·289 (T01~T05, KAN-3 하위) | ✅ done | 5/5 |
-| 08 | 수집→임베딩→벡터 저장 파이프라인 | KAN-290~ (T01~, KAN-3 하위) | ▶ current | 2/5 |
+| 08 | 수집→임베딩→벡터 저장 파이프라인 | KAN-290~ (T01~, KAN-3 하위) | ▶ current | 3/5 |
 
 > **컨벤션 이식(2026-07-15)**: agentic-starter 골든 루프 → plick-ai 방식(develop
 > 브랜치 모델 + KAN 티켓 + pipeline.md)으로 전환. Phase 01~04는 이식 전에 완료돼
@@ -110,14 +110,27 @@
   Supabase(읽기 전용)에서 커서(published_at) 이후 발행된 PUBLISHED 기사만 Article로 반환.
   같은 시각·이전은 제외(gt + 클라이언트 재확인), 발행순 정렬. HTTP는 콜러블 주입으로 모킹,
   결정적 테스트 6개(전체 60개 초록). id 기준 건너뛰기는 저장소 몫(T03).
-- [ ] **T03** (미발행) 전체 배치 파이프라인 — 로드→임베딩(캐시)→벡터 저장→증분 묶기→
-  기사-이슈 매핑, 재실행 시 처리한 기사 건너뜀(Store·pgvector 어댑터 구현)
+- [x] **T03** (KAN-293) 전체 배치 파이프라인 — ✔ `pipeline/store.py`(로컬 파일 저장소)·
+  `pipeline/batch.py`(`run_pipeline`)·`scripts/run_pipeline.py`. 로드→임베딩(캐시)→벡터 저장
+  (model·task_type·dim·normalized 메타 함께)→발행순 재군집→issue_id 적기. 저장소에 있는 id는
+  다시 안 부름·안 만듦. 실제 90건 2회 연속: 1회차 90건→60이슈, 2회차 **신규 0건**(멱등, 결과
+  동일). stub provider·저장소 라운드트립·멱등 테스트 7개(전체 67개 초록). `.store/` gitignore.
 - [ ] **T04** (미발행) 실패 대비 — API 오류 재시도 + 중간에 끊겨도 중복 처리 안 함 검증
 - [ ] **T05** (미발행) plick-ai 이식 가이드 — 확정 구성·모듈 경계·인터페이스 계약 초안
 
 ---
 
 ## 로그 (최신 위)
+- **P08-T03 완료(2026-07-23, KAN-293)**: 전체 처리 흐름 잇기 `pipeline/store.py`(로컬 파일
+  벡터 저장소)·`pipeline/batch.py`(`run_pipeline`)·`scripts/run_pipeline.py`. 가져오기→임베딩
+  (캐시)→저장→발행 시각 순 재군집(`cluster_incrementally`)→issue_id 적기까지 한 줄. 저장소에
+  이미 있는 id는 다시 가져오지도 임베딩하지도 않음(이중 안전장치+캐시). 저장 레코드 한 줄에
+  벡터 + model·task_type·dim·normalized + published_at + issue_id 함께. 묶기는 **방식 A(매번
+  전부 재군집)** — 발행순 1건씩이라 재생해도 같은 결과, 두 번 돌려도 같음. 실제 90건 2회 연속
+  검증: 1회차 90건→60이슈, **2회차 신규 0건**(멱등)·60이슈 동일, 전부 캐시라 API 0. 테스트
+  7개(stub provider 임베딩 0회 재호출·저장소 라운드트립·이어처리, 전체 67개 초록). `.store/`
+  gitignore(운영 상태). 저장소 경계(넣기/전체읽기/id확인/이슈적기)는 이식 때 벡터DB 어댑터로
+  교체. 브랜치 `feat/KAN-290-vector-store`.
 - **P08-T02 완료(2026-07-23, KAN-292)**: 기사 증분 불러오기 `pipeline/source.py`
   (`fetch_new_articles`). Supabase article_summaries(읽기 전용)에서 **커서(published_at)
   이후 발행된 PUBLISHED 기사만** Article로 반환 — 같은 시각·이전은 제외(서버 gt + 클라이언트
