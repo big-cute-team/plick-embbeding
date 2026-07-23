@@ -6,6 +6,7 @@
 from datetime import UTC, datetime, timedelta
 
 import numpy as np
+import pytest
 
 from plick_embedding.pipeline.articles import Article, embed_texts
 from plick_embedding.pipeline.batch import run_pipeline
@@ -105,3 +106,29 @@ def test_third_article_added_later_only_it_is_processed(tmp_path):
     assert result.new_count == 1
     assert provider.embedded == [embed_texts([ARTICLES[2]])[0]]
     assert result.total == 3
+
+
+class CrashingProvider(EmbeddingProvider):
+    """임베딩 도중 끊긴 상황을 흉내 — embed에서 바로 터진다."""
+
+    def embed(self, texts: list[str]) -> np.ndarray:
+        raise RuntimeError("임베딩 도중 끊김")
+
+
+def test_pipeline_resumes_after_crash_without_duplicate(tmp_path):
+    """중간에 끊긴 뒤 다시 돌리면 반쪽 저장 없이 중복 없이 끝낸다."""
+    path = tmp_path / "vectors.jsonl"
+
+    with pytest.raises(RuntimeError, match="끊김"):
+        run_pipeline(
+            ARTICLES, CrashingProvider(CONFIG), VectorStore(path), threshold=0.86, window=WINDOW
+        )
+    assert VectorStore(path).known_ids() == set()  # 반쪽 저장이 남지 않음
+
+    provider = StubProvider(CONFIG, VECTORS)
+    result = run_pipeline(ARTICLES, provider, VectorStore(path), threshold=0.86, window=WINDOW)
+
+    assert result.new_count == 3
+    assert result.total == 3
+    assert len(provider.embedded) == 3  # 각 기사 딱 한 번만 임베딩
+    assert len(VectorStore(path).known_ids()) == 3  # 중복 없음

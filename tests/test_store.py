@@ -3,7 +3,9 @@
 from datetime import UTC, datetime, timedelta
 
 import numpy as np
+import pytest
 
+from plick_embedding.pipeline import store as store_module
 from plick_embedding.pipeline.store import StoredArticle, VectorStore
 
 BASE = datetime(2026, 7, 11, 9, 0, 0, tzinfo=UTC)
@@ -66,3 +68,20 @@ def test_set_issues_persists(tmp_path):
 
     reloaded = VectorStore(path)
     assert {r.id: r.issue_id for r in reloaded.all()} == {"1": "issue_0", "2": "issue_0"}
+
+
+def test_save_is_atomic_old_file_survives_failed_write(tmp_path, monkeypatch):
+    """저장(바꿔치기)이 도중 실패해도 이전 저장 파일은 온전하다."""
+    path = tmp_path / "vectors.jsonl"
+    store = VectorStore(path)
+    store.add([make("1", 0, issue_id="issue_0")])
+    old = path.read_text(encoding="utf-8")
+
+    def boom(*_args):
+        raise OSError("바꿔치기 도중 끊김")
+
+    monkeypatch.setattr(store_module.os, "replace", boom)
+    with pytest.raises(OSError, match="끊김"):
+        store.set_issues({"1": "issue_9"})
+
+    assert path.read_text(encoding="utf-8") == old  # 이전 저장 그대로
